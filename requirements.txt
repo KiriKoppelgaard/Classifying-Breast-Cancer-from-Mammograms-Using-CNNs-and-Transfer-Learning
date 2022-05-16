@@ -1,0 +1,11 @@
+tensorflow
+scikit-learn
+pandas
+numpy 
+seaborn
+preprocessing
+matplotlib
+imageio
+scikit-image
+tqdm
+opencv-python
