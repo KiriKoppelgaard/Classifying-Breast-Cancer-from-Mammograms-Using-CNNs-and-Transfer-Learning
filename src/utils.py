@@ -3,19 +3,15 @@
 import tensorflow as tf
 import cv2
 
-#Initiate variables
-images=[]
-labels=[]
-
 def _parse_function(example):
-    """_summary_
+    """
+    A function that maps a tf record to a feature dictionary 
 
     Args:
-        example (): _description_
-        feature_dictionary (_type_): _description_
+        example (TFRecord): tf record, a simple format for storing a sequence of binary records
 
     Returns:
-        _type_: _description_
+        dict: dictionary of features, 'label', 'label_normal', and 'image'
     """    
     # prepare feature dictionary 
     feature_dictionary = {
@@ -25,7 +21,6 @@ def _parse_function(example):
         }
 
     parsed_example = tf.io.parse_example(example, feature_dictionary)
-    print(parsed_example)
     return parsed_example
 
 
@@ -36,6 +31,7 @@ def read_data(filename):
     Args:
         filename (string): full path to tfrecord
     """    
+    images, labels = [], []
     # Create a TFRecordDataset to read one or more TFRecord files
     full_dataset = tf.data.TFRecordDataset(filename,num_parallel_reads=tf.data.experimental.AUTOTUNE) 
     # Save in memory
@@ -44,16 +40,26 @@ def read_data(filename):
     # Print size 
     #print("Size of Training Dataset: ", len(list(full_dataset)))
 
+    # map feature dictionary to each tfrecord in full_dataset
     full_dataset = full_dataset.map(_parse_function, num_parallel_calls=tf.data.experimental.AUTOTUNE)
-    print("PRINT!", full_dataset)
+    # for each image
     for image_features in full_dataset:
+        # convert image to numpy
         image = image_features['image'].numpy()
+        # convert to numeric tensor
         image = tf.io.decode_raw(image_features['image'], tf.uint8)
+        # reshape 
         image = tf.reshape(image, [299, 299])        
+        # make numpy again
         image=image.numpy()
+        # downsize image to 100x100 pixels
         image=cv2.resize(image,(100,100))
+        # reformat for RGB channels (since the images are b/w, we duplicate grey scale values)
         image=cv2.merge([image,image,image])
-        image
+        #image # commented out from orig kaggle code 
+        # append reshapes images 
         images.append(image)
+        # append labels
         labels.append(image_features['label_normal'].numpy()) # changed from 'label'
-
+    
+    #return images, labels
