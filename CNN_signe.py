@@ -1,13 +1,34 @@
-
-
 import tensorflow as tf
 import matplotlib.pyplot as plt
 # Importing the required Keras modules containing model and layers
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Conv2D, Dropout, Flatten, MaxPooling2D
 from sklearn.metrics import classification_report
+import os
+from src.utils import read_data, _parse_function
+
+
+# prepare feature dictionary 
+feature_dictionary = {
+    'label': tf.io.FixedLenFeature([], tf.int64),
+    'label_normal': tf.io.FixedLenFeature([], tf.int64),
+    'image': tf.io.FixedLenFeature([], tf.string)
+    }
 
 # load data
+root_dir = os.path.abspath("")
+
+filenames=[os.path.join(root_dir,'data','training10_0','training10_0.tfrecords'),#'../input/ddsm-mammography/training10_0/training10_0.tfrecords',
+          os.path.join(root_dir,'data','training10_1','training10_1.tfrecords'), #'../input/ddsm-mammography/training10_1/training10_1.tfrecords',
+          os.path.join(root_dir,'data','training10_2','training10_2.tfrecords'),#'../input/ddsm-mammography/training10_2/training10_2.tfrecords',
+          os.path.join(root_dir,'data','training10_3','training10_3.tfrecords'), #'../input/ddsm-mammography/training10_3/training10_3.tfrecords',
+          os.path.join(root_dir,'data','training10_4','training10_4.tfrecords') #'../input/ddsm-mammography/training10_4/training10_4.tfrecords'
+          ]
+
+for file in filenames:
+    read_data(file)
+
+
 (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
 
 # print shape

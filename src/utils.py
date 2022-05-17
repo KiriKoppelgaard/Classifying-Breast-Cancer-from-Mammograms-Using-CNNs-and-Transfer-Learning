@@ -6,24 +6,24 @@ import cv2
 #Initiate variables
 images=[]
 labels=[]
-feature_dictionary = {
-    'label': tf.io.FixedLenFeature([], tf.int64),
-    'label_normal': tf.io.FixedLenFeature([], tf.int64),
-    'image': tf.io.FixedLenFeature([], tf.string)
-    }
+
 
 #define read function 
 def read_data(filename):
-    full_dataset = tf.data.TFRecordDataset(filename,num_parallel_reads=tf.data.experimental.AUTOTUNE)
-    full_dataset = full_dataset.cache()
-    print("Size of Training Dataset: ", len(list(full_dataset)))
-    
-    feature_dictionary = {
-    'label': tf.io.FixedLenFeature([], tf.int64),
-    'label_normal': tf.io.FixedLenFeature([], tf.int64),
-    'image': tf.io.FixedLenFeature([], tf.string)
-    }   
+    """
+    A function to read the DDSTM data set
 
+    Args:
+        filename (_type_): _description_
+    """    
+    # Create a TFRecordDataset to read one or more TFRecord files
+    full_dataset = tf.data.TFRecordDataset(filename,num_parallel_reads=tf.data.experimental.AUTOTUNE) 
+    # Save in memory
+    full_dataset = full_dataset.cache()
+    # Print size 
+    #print("Size of Training Dataset: ", len(list(full_dataset)))
+
+    # 
     full_dataset = full_dataset.map(_parse_function, num_parallel_calls=tf.data.experimental.AUTOTUNE)
     print(full_dataset)
     for image_features in full_dataset:
@@ -35,9 +35,18 @@ def read_data(filename):
         image=cv2.merge([image,image,image])
         image
         images.append(image)
-        labels.append(image_features['label'].numpy())
+        labels.append(image_features['label_normal'].numpy()) # changed from 'label'
 
 #define parsing function
-def _parse_function(example, feature_dictionary=feature_dictionary):
+def _parse_function(example, feature_dictionary):
+    """_summary_
+
+    Args:
+        example (_type_): _description_
+        feature_dictionary (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """    
     parsed_example = tf.io.parse_example(example, feature_dictionary)
     return parsed_example
