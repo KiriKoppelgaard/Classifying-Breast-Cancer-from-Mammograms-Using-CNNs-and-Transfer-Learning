@@ -7,14 +7,27 @@ import cv2
 images=[]
 labels=[]
 
+#define parsing function
+def _parse_function(example, feature_dictionary):
+    """_summary_
+
+    Args:
+        example (_type_): _description_
+        feature_dictionary (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """    
+    parsed_example = tf.io.parse_example(example, feature_dictionary)
+    return parsed_example
 
 #define read function 
 def read_data(filename):
     """
-    A function to read the DDSTM data set
+    A function to read the tfrecods in the DDSTM data set
 
     Args:
-        filename (_type_): _description_
+        filename (string): full path to tfrecord
     """    
     # Create a TFRecordDataset to read one or more TFRecord files
     full_dataset = tf.data.TFRecordDataset(filename,num_parallel_reads=tf.data.experimental.AUTOTUNE) 
@@ -37,16 +50,3 @@ def read_data(filename):
         images.append(image)
         labels.append(image_features['label_normal'].numpy()) # changed from 'label'
 
-#define parsing function
-def _parse_function(example, feature_dictionary):
-    """_summary_
-
-    Args:
-        example (_type_): _description_
-        feature_dictionary (_type_): _description_
-
-    Returns:
-        _type_: _description_
-    """    
-    parsed_example = tf.io.parse_example(example, feature_dictionary)
-    return parsed_example
