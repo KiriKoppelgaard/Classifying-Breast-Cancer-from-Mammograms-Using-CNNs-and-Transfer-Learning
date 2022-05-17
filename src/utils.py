@@ -1,6 +1,7 @@
 #source: https://www.kaggle.com/code/aayushkandpal/ddsm-vgg19/notebook
  
 import tensorflow as tf
+import cv2
 
 #Initiate variables
 images=[]
