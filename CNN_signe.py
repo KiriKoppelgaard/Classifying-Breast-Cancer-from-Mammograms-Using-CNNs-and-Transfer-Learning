@@ -5,15 +5,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Conv2D, Dropout, Flatten, MaxPooling2D
 from sklearn.metrics import classification_report
 import os
-from src.utils import read_data, _parse_function
-
-
-# prepare feature dictionary 
-feature_dictionary = {
-    'label': tf.io.FixedLenFeature([], tf.int64),
-    'label_normal': tf.io.FixedLenFeature([], tf.int64),
-    'image': tf.io.FixedLenFeature([], tf.string)
-    }
+from src.utils import read_data
 
 # load data
 root_dir = os.path.abspath("")
@@ -27,6 +19,7 @@ filenames=[os.path.join(root_dir,'data','training10_0','training10_0.tfrecords')
 
 for file in filenames:
     read_data(file)
+    break
 
 
 (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()

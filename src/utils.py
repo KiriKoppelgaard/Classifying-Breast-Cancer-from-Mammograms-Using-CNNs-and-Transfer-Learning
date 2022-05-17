@@ -7,21 +7,28 @@ import cv2
 images=[]
 labels=[]
 
-#define parsing function
-def _parse_function(example, feature_dictionary):
+def _parse_function(example):
     """_summary_
 
     Args:
-        example (_type_): _description_
+        example (): _description_
         feature_dictionary (_type_): _description_
 
     Returns:
         _type_: _description_
     """    
+    # prepare feature dictionary 
+    feature_dictionary = {
+        'label': tf.io.FixedLenFeature([], tf.int64),
+        'label_normal': tf.io.FixedLenFeature([], tf.int64),
+        'image': tf.io.FixedLenFeature([], tf.string)
+        }
+
     parsed_example = tf.io.parse_example(example, feature_dictionary)
+    print(parsed_example)
     return parsed_example
 
-#define read function 
+
 def read_data(filename):
     """
     A function to read the tfrecods in the DDSTM data set
@@ -33,12 +40,12 @@ def read_data(filename):
     full_dataset = tf.data.TFRecordDataset(filename,num_parallel_reads=tf.data.experimental.AUTOTUNE) 
     # Save in memory
     full_dataset = full_dataset.cache()
+
     # Print size 
     #print("Size of Training Dataset: ", len(list(full_dataset)))
 
-    # 
     full_dataset = full_dataset.map(_parse_function, num_parallel_calls=tf.data.experimental.AUTOTUNE)
-    print(full_dataset)
+    print("PRINT!", full_dataset)
     for image_features in full_dataset:
         image = image_features['image'].numpy()
         image = tf.io.decode_raw(image_features['image'], tf.uint8)
