@@ -62,4 +62,4 @@ def read_data(filename):
         # append labels
         labels.append(image_features['label_normal'].numpy()) # changed from 'label'
     
-    #return images, labels
+    return images, labels
