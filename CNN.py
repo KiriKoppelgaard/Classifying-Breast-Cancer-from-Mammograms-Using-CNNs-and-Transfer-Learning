@@ -8,7 +8,7 @@ import os
 import numpy as np
 from sklearn.model_selection import *
 
-
+#import functions
 from src.utils import read_data
 
 
@@ -30,40 +30,41 @@ for file in filenames:
     images.append(image)
     labels.append(label)
 
-# define train and test
-X=np.array(images)
-y=np.array(labels)
-
 # flatten images and labels (so they are not nested lists)
 images = [i for image in images for i in image]
 labels = [l for label in labels for l in label]
 
+print('made it here')
+
+# define train and test
+X=np.array(images)
+y=np.array(labels)
+
 print(len(images))
 print(len(labels))
 
-'''
+#divide data into train and test
 x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=0,shuffle=True,stratify=y)
 print(x_train.shape, x_test.shape, y_train.shape, y_test.shape)
 
-(x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
-
-# print shape
-#print(x_train.shape)
+#(x_train_mnist, y_train_mnist), (x_test_mnist, y_test_mnist) = tf.keras.datasets.mnist.load_data()
+#print(x_train_mnist.shape, x_test_mnist.shape, y_train_mnist.shape, y_test_mnist.shape)
 
 # plot example image
-image_index = 7777 # You may select anything up to 60,000
-#print(y_train[image_index]) # The label is 8
+image_index = 7777
+print(y_train[image_index]) 
 plt.imshow(x_train[image_index], cmap='Greys')
-#plt.show() # show image
+plt.show()
 
 # Reshaping the array to 4-dims so that it can work with the Keras API
-x_train = x_train.reshape(x_train.shape[0], x_train.shape[1], x_train.shape[2], 1) 
-x_test = x_test.reshape(x_test.shape[0], x_train.shape[1], x_train.shape[2], 1)
+#x_train = x_train.reshape(x_train.shape[0], x_train.shape[1], x_train.shape[2], 1) 
+#x_test = x_test.reshape(x_test.shape[0], x_train.shape[1], x_train.shape[2], 1)
 input_shape = (x_train.shape[1], x_train.shape[2], x_train.shape[3])
 
 # Making sure that the values are float so that we can get decimal points after division
 x_train = x_train.astype('float32')
 x_test = x_test.astype('float32')
+
 # Normalizing the RGB codes by dividing it to the max RGB value.
 x_train /= 255
 x_test /= 255
