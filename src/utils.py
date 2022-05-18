@@ -55,7 +55,7 @@ def read_data(filename):
         # downsize image to 100x100 pixels
         image=cv2.resize(image,(100,100))
         # reformat for RGB channels (since the images are b/w, we duplicate grey scale values)
-        image=cv2.merge([image,image,image])
+        #image=cv2.merge([image,image,image])
         #image # commented out from orig kaggle code 
         # append reshapes images 
         images.append(image)

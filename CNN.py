@@ -34,8 +34,6 @@ for file in filenames:
 images = [i for image in images for i in image]
 labels = [l for label in labels for l in label]
 
-print('made it here')
-
 # define train and test
 X=np.array(images)
 y=np.array(labels)
@@ -53,12 +51,13 @@ print(x_train.shape, x_test.shape, y_train.shape, y_test.shape)
 # plot example image
 image_index = 7777
 print(y_train[image_index]) 
-plt.imshow(x_train[image_index], cmap='Greys')
-plt.show()
+#plt.imshow(x_train[image_index], cmap='Greys')
+#plt.show()
+
 
 # Reshaping the array to 4-dims so that it can work with the Keras API
-#x_train = x_train.reshape(x_train.shape[0], x_train.shape[1], x_train.shape[2], 1) 
-#x_test = x_test.reshape(x_test.shape[0], x_train.shape[1], x_train.shape[2], 1)
+x_train = x_train.reshape(x_train.shape[0], x_train.shape[1], x_train.shape[2], 1) 
+x_test = x_test.reshape(x_test.shape[0], x_train.shape[1], x_train.shape[2], 1)
 input_shape = (x_train.shape[1], x_train.shape[2], x_train.shape[3])
 
 # Making sure that the values are float so that we can get decimal points after division
@@ -85,22 +84,24 @@ model.add(Dense(10,activation=tf.nn.softmax))
 model.compile(optimizer='adam', 
               loss='sparse_categorical_crossentropy', 
               metrics=['accuracy'])
-# Fit model
+print("model has been compiled")
+# Fit model: 1223 images?
 model.fit(x=x_train,y=y_train, epochs=1)
-# Evaluate model
+print("model has been fitted")
+# Evaluate model: 524
 model.evaluate(x_test, y_test)
+print("model has been evaluated")
 
 # Predict using fitted model 
-image_index = 4444
-plt.imshow(x_test[image_index].reshape(28, 28),cmap='Greys')
-pred = model.predict(x_test[image_index].reshape(1, 28, 28, 1))
-print(pred.argmax())
+# image_index = 2
+# plt.imshow(x_test[image_index].reshape(x_train.shape[1], x_train.shape[2]),cmap='Greys')
+# pred = model.predict(x_test[image_index].reshape(1, x_train.shape[1], x_train.shape[2], 1))
+# print(pred.argmax())
 
 #create predictions for test set 
 y_pred = model.predict(x_test, batch_size=64, verbose=1)
+print("y_pred has run")
 y_pred_bool = np.argmax(y_pred, axis=1)
 
 #print classification report
 print(classification_report(y_test, y_pred_bool))
-
-'''
