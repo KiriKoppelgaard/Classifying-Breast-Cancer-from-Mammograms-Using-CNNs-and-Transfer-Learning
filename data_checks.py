@@ -1,12 +1,7 @@
 import tensorflow as tf
 import matplotlib.pyplot as plt
-# Importing the required Keras modules containing model and layers
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Conv2D, Dropout, Flatten, MaxPooling2D
-from sklearn.metrics import classification_report
 import os
 import numpy as np
-from sklearn.model_selection import *
 
 
 
@@ -31,12 +26,11 @@ print("val_labels")
 print(np.unique(val_labels))
 print(np.bincount(val_labels))
 
-
+# plot images
 image_index = 1
 print("test label: ", test_labels[image_index]) # The label is 8
 plt.imshow(test_images[image_index], cmap='Greys')
 plt.show()
-
 
 image_index = [100,101,102,103] 
 for index in image_index:
@@ -51,6 +45,7 @@ for index in image_index:
     plt.imshow(val_images[index], cmap='Greys')
     plt.show()
 
+# create lists with only 0 images 
 test_images_0 = []
 for index in range(0,len(test_labels)):
     if test_labels[index] == 0:
@@ -61,8 +56,31 @@ for index in range(0,len(val_labels)):
     if val_labels[index] == 0:
         val_images_0.append(val_images[index])
 
-np.array_equal(test_images_0, val_images_0)
-(test_images_0==val_images_0)
+#np.array_equal(test_images_0, val_images_0)
+#np.any(test_images_0.any==val_images_0.any)
+
+combined_0 = test_images_0 + val_images_0
+
+
+len(test_images_0)
+len(val_images_0)
+len(combined_0)
+
+set(np.array(combined_0))
+
+def checkIfDuplicates_1(listOfElems):
+    ''' Check if given list contains any duplicates '''
+    if len(listOfElems) == len(set(listOfElems)):
+        return False
+    else:
+        return True
+
+result = checkIfDuplicates_1(combined_0)
+if result:
+    print('Yes, list contains duplicates')
+else:
+    print('No duplicates found in list') 
+
 #Check whether it is the same positive images in test and val
 #Should we just combine them? 
 #Plot some stuff 
