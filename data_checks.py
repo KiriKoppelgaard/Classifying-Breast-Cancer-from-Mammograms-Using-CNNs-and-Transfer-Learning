@@ -1,7 +1,4 @@
 import tensorflow as tf
-(x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
-
-import tensorflow as tf
 import matplotlib.pyplot as plt
 # Importing the required Keras modules containing model and layers
 from tensorflow.keras.models import Sequential
@@ -24,14 +21,24 @@ test_labels = np.load(os.path.join(root_dir,'data','test10_labels.npy'))
 val_images = np.load(os.path.join(root_dir, 'data','cv10_data','cv10_data.npy'))
 val_labels = np.load(os.path.join(root_dir,'data','cv10_labels.npy'))
 
-print(test_images.shape)
+#print(test_images.shape)
 
-print(type(test_images))
+#print(type(test_images))
+
+#print(test_labels[0])
+
+print("test_labels")
 print(np.unique(test_labels))
-print(test_labels[0])
+print(np.bincount(test_labels))
+print("val_labels")
 print(np.unique(val_labels))
+print(np.bincount(val_labels))
 
 
+#Check whether it is the same positive images in test and val
+#Should we just combine them? 
+#Plot some stuff 
+#Find plot with accuracy and *stuff* over time and implement it 
 
 '''
 # load data
