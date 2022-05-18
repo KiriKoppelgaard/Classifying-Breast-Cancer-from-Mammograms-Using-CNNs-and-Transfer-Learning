@@ -24,7 +24,7 @@ def _parse_function(example):
     return parsed_example
 
 
-def read_data(filename):
+def read_data(filename,transfer_learning=True):
     """
     A function to read the tfrecods in the DDSTM data set
 
@@ -54,8 +54,9 @@ def read_data(filename):
         image=image.numpy()
         # downsize image to 100x100 pixels
         image=cv2.resize(image,(100,100))
-        # reformat for RGB channels (since the images are b/w, we duplicate grey scale values)
-        #image=cv2.merge([image,image,image])
+        if transfer_learning:
+            # reformat for RGB channels (since the images are b/w, we duplicate grey scale values)
+            image=cv2.merge([image,image,image])
         #image # commented out from orig kaggle code 
         # append reshapes images 
         images.append(image)
