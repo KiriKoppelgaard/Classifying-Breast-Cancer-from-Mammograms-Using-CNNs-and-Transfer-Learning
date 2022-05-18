@@ -4,12 +4,13 @@ import matplotlib.pyplot as plt
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Conv2D, Dropout, Flatten, MaxPooling2D
 from sklearn.metrics import classification_report
+from sklearn.model_selection import KFold, StratifiedKFold
 import os
 import numpy as np
 from sklearn.model_selection import *
 
 #import functions
-from src.utils import read_data
+from src.utils import read_data, cnn
 
 
 # load data
@@ -71,17 +72,61 @@ print('x_train shape:', x_train.shape)
 print('Number of images in x_train', x_train.shape[0])
 print('Number of images in x_test', x_test.shape[0])
 
-def cnn(filters = 100, kernel_size = 3, pool_size = 2, hidden_layers = [250], activation = tf.nn.leaky_relu):
-    # Creating a Sequential Model and adding the layers
-    model = Sequential() #preparing for linear stack of layers
-    model.add(Conv2D(filters, kernel_size=(kernel_size,kernel_size), input_shape=input_shape)) #defining number of filters and size of kernel
-    model.add(MaxPooling2D(pool_size=(pool_size, pool_size))) #densing pixel information
-    model.add(Flatten()) # Flattening the 2D to 1D arrays for fully connected layers
-    for layer in hidden_layers: 
-        model.add(Dense(layer, activation=activation)) #feed-forward layer with relu activation function (following Abdelrahman et al. 2021 using leaky relu)
-        model.add(Dropout(0.2)) #randomly pruning nodes to reduce overfitting
-    model.add(Dense(2,activation='sigmoid')) #feed-forward layer with softmax
-    return model
+#create cv 
+validation_acc = []
+validation_loss = []
+
+save_dir = '/saved_models/'
+fold_var = 1
+
+for train_index, val_index in kf.split(np.zeros(n),Y):
+	training_data = train_data.iloc[train_index]
+	validation_data = train_data.iloc[val_index]
+	
+	train_data_generator = idg.flow_from_dataframe(training_data, directory = image_dir,
+						       x_col = "filename", y_col = "label",
+						       class_mode = "categorical", shuffle = True)
+	valid_data_generator  = idg.flow_from_dataframe(validation_data, directory = image_dir,
+							x_col = "filename", y_col = "label",
+							class_mode = "categorical", shuffle = True)
+	
+	# CREATE NEW MODEL
+	model = create_new_model()
+	# COMPILE NEW MODEL
+	model.compile(loss='categorical_crossentropy',
+		      optimizer=opt,
+		      metrics=['accuracy'])
+	
+	# CREATE CALLBACKS
+	checkpoint = tf.keras.callbacks.ModelCheckpoint(save_dir+get_model_name(fold_var), 
+							monitor='val_accuracy', verbose=1, 
+							save_best_only=True, mode='max')
+	callbacks_list = [checkpoint]
+	# There can be other callbacks, but just showing one because it involves the model name
+	# This saves the best model
+	# FIT THE MODEL
+	history = model.fit(train_data_generator,
+			    epochs=num_epochs,
+			    callbacks=callbacks_list,
+			    validation_data=valid_data_generator)
+	#PLOT HISTORY
+	#		:
+	#		:
+	
+	# LOAD BEST MODEL to evaluate the performance of the model
+	model.load_weights("/saved_models/model_"+str(fold_var)+".h5")
+	
+	results = model.evaluate(valid_data_generator)
+	results = dict(zip(model.metrics_names,results))
+	
+	VALIDATION_ACCURACY.append(results['accuracy'])
+	VALIDATION_LOSS.append(results['loss'])
+	
+	tf.keras.backend.clear_session()
+	
+	fold_var += 1
+
+
 
 model = cnn()
 #print model parameters 
@@ -91,6 +136,7 @@ model.summary
 model.compile(optimizer='adam', 
               loss='sparse_categorical_crossentropy', 
               metrics=['accuracy'])
+
 print("model has been compiled")
 # Fit model: 1223 images?
 model.fit(x=x_train,y=y_train, epochs=1)
