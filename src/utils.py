@@ -64,3 +64,15 @@ def read_data(filename,transfer_learning=True):
         labels.append(image_features['label_normal'].numpy()) # changed from 'label'
     
     return images, labels
+
+def cnn(filters = 100, kernel_size = 3, pool_size = 2, hidden_layers = [250], activation = tf.nn.leaky_relu):
+    # Creating a Sequential Model and adding the layers
+    model = Sequential() #preparing for linear stack of layers
+    model.add(Conv2D(filters, kernel_size=(kernel_size,kernel_size), input_shape=input_shape)) #defining number of filters and size of kernel
+    model.add(MaxPooling2D(pool_size=(pool_size, pool_size))) #densing pixel information
+    model.add(Flatten()) # Flattening the 2D to 1D arrays for fully connected layers
+    for layer in hidden_layers: 
+        model.add(Dense(layer, activation=activation)) #feed-forward layer with relu activation function (following Abdelrahman et al. 2021 using leaky relu)
+        model.add(Dropout(0.2)) #randomly pruning nodes to reduce overfitting
+    model.add(Dense(2, activation='sigmoid')) #feed-forward layer with softmax
+    return model
