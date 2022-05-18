@@ -15,11 +15,11 @@ from src.utils import read_data
 # load data
 root_dir = os.path.abspath("")
 
-filenames=[os.path.join(root_dir,'data','training10_0','training10_0.tfrecords'),#'../input/ddsm-mammography/training10_0/training10_0.tfrecords',
-          os.path.join(root_dir,'data','training10_1','training10_1.tfrecords'), #'../input/ddsm-mammography/training10_1/training10_1.tfrecords',
-          os.path.join(root_dir,'data','training10_2','training10_2.tfrecords'),#'../input/ddsm-mammography/training10_2/training10_2.tfrecords',
-          os.path.join(root_dir,'data','training10_3','training10_3.tfrecords'), #'../input/ddsm-mammography/training10_3/training10_3.tfrecords',
-          os.path.join(root_dir,'data','training10_4','training10_4.tfrecords') #'../input/ddsm-mammography/training10_4/training10_4.tfrecords'
+filenames=[os.path.join(root_dir,'data','training10_0','training10_0.tfrecords')#,#'../input/ddsm-mammography/training10_0/training10_0.tfrecords',
+          #os.path.join(root_dir,'data','training10_1','training10_1.tfrecords'), #'../input/ddsm-mammography/training10_1/training10_1.tfrecords',
+          #os.path.join(root_dir,'data','training10_2','training10_2.tfrecords'),#'../input/ddsm-mammography/training10_2/training10_2.tfrecords',
+          #os.path.join(root_dir,'data','training10_3','training10_3.tfrecords'), #'../input/ddsm-mammography/training10_3/training10_3.tfrecords',
+          #os.path.join(root_dir,'data','training10_4','training10_4.tfrecords') #'../input/ddsm-mammography/training10_4/training10_4.tfrecords'
           ]
 
 # empty lists
@@ -71,19 +71,26 @@ print('x_train shape:', x_train.shape)
 print('Number of images in x_train', x_train.shape[0])
 print('Number of images in x_test', x_test.shape[0])
 
-# Creating a Sequential Model and adding the layers
-model = Sequential() #preparing for linear stack of layers
-model.add(Conv2D(100, kernel_size=(3,3), input_shape=input_shape)) #defining number of filters and size of kernel
-model.add(MaxPooling2D(pool_size=(2, 2))) #densing pixel information
-model.add(Flatten()) # Flattening the 2D to 1D arrays for fully connected layers
-model.add(Dense(250, activation=tf.nn.leaky_relu)) #feed-forward layer with relu activation function (following Abdelrahman et al. 2021 using leaky relu)
-model.add(Dropout(0.2)) #randomly pruning nodes to reduce overfitting
-model.add(Dense(2,activation=tf.nn.sigmoid)) #feed-forward layer with softmax
+def cnn(filters = 100, kernel_size = 3, pool_size = 2, hidden_layers = [250], activation = tf.nn.leaky_relu):
+    # Creating a Sequential Model and adding the layers
+    model = Sequential() #preparing for linear stack of layers
+    model.add(Conv2D(filters, kernel_size=(kernel_size,kernel_size), input_shape=input_shape)) #defining number of filters and size of kernel
+    model.add(MaxPooling2D(pool_size=(pool_size, pool_size))) #densing pixel information
+    model.add(Flatten()) # Flattening the 2D to 1D arrays for fully connected layers
+    for layer in hidden_layers: 
+        model.add(Dense(layer, activation=activation)) #feed-forward layer with relu activation function (following Abdelrahman et al. 2021 using leaky relu)
+        model.add(Dropout(0.2)) #randomly pruning nodes to reduce overfitting
+    model.add(Dense(2,activation='sigmoid')) #feed-forward layer with softmax
+    return model
+
+model = cnn()
+#print model parameters 
+model.summary
 
 # Compile model
 model.compile(optimizer='adam', 
               loss='sparse_categorical_crossentropy', 
-              metrics=['accuracy', 'AUC', 'FalseNegatives'])
+              metrics=['accuracy'])
 print("model has been compiled")
 # Fit model: 1223 images?
 model.fit(x=x_train,y=y_train, epochs=1)
