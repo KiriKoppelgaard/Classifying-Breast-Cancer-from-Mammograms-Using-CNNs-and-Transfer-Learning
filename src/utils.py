@@ -2,6 +2,9 @@
  
 import tensorflow as tf
 import cv2
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Conv2D, Dropout, Flatten, MaxPooling2D
+
 
 def _parse_function(example):
     """
@@ -65,7 +68,7 @@ def read_data(filename,transfer_learning=True):
     
     return images, labels
 
-def cnn(filters = 100, kernel_size = 3, pool_size = 2, hidden_layers = [250], activation = tf.nn.leaky_relu):
+def cnn(input_shape, filters = 100, kernel_size = 3, pool_size = 2, hidden_layers = [250], activation = tf.nn.leaky_relu):
     # Creating a Sequential Model and adding the layers
     model = Sequential() #preparing for linear stack of layers
     model.add(Conv2D(filters, kernel_size=(kernel_size,kernel_size), input_shape=input_shape)) #defining number of filters and size of kernel
@@ -75,4 +78,9 @@ def cnn(filters = 100, kernel_size = 3, pool_size = 2, hidden_layers = [250], ac
         model.add(Dense(layer, activation=activation)) #feed-forward layer with relu activation function (following Abdelrahman et al. 2021 using leaky relu)
         model.add(Dropout(0.2)) #randomly pruning nodes to reduce overfitting
     model.add(Dense(2, activation='sigmoid')) #feed-forward layer with softmax
+
+    model.compile(optimizer='adam', 
+              loss='sparse_categorical_crossentropy', 
+              metrics=['accuracy'])
+              
     return model

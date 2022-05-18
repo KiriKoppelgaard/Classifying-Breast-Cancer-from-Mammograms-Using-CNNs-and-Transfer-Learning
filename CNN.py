@@ -1,16 +1,15 @@
 import tensorflow as tf
 import matplotlib.pyplot as plt
-# Importing the required Keras modules containing model and layers
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Conv2D, Dropout, Flatten, MaxPooling2D
 from sklearn.metrics import classification_report
 from sklearn.model_selection import KFold, StratifiedKFold
+from tensorflow.keras.wrappers.scikit_learn import KerasRegressor
 import os
 import numpy as np
+import pandas as pd
 from sklearn.model_selection import *
 
 #import functions
-from src.utils import read_data, cnn
+from src.utils import *
 
 
 # load data
@@ -36,8 +35,8 @@ images = [i for image in images for i in image]
 labels = [l for label in labels for l in label]
 
 # define train and test
-X=np.array(images)
-y=np.array(labels)
+X=np.array(images)[0:1000]
+y=np.array(labels)[0:1000]
 
 print(len(images))
 print(len(labels))
@@ -46,11 +45,8 @@ print(len(labels))
 x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=0,shuffle=True,stratify=y)
 print(x_train.shape, x_test.shape, y_train.shape, y_test.shape)
 
-#(x_train_mnist, y_train_mnist), (x_test_mnist, y_test_mnist) = tf.keras.datasets.mnist.load_data()
-#print(x_train_mnist.shape, x_test_mnist.shape, y_train_mnist.shape, y_test_mnist.shape)
-
 # plot example image
-image_index = 7777
+image_index = 7
 print(y_train[image_index]) 
 #plt.imshow(x_train[image_index], cmap='Greys')
 #plt.show()
@@ -72,63 +68,9 @@ print('x_train shape:', x_train.shape)
 print('Number of images in x_train', x_train.shape[0])
 print('Number of images in x_test', x_test.shape[0])
 
-#create cv 
-validation_acc = []
-validation_loss = []
+#create model
+model = cnn(input_shape)
 
-save_dir = '/saved_models/'
-fold_var = 1
-
-for train_index, val_index in kf.split(np.zeros(n),Y):
-	training_data = train_data.iloc[train_index]
-	validation_data = train_data.iloc[val_index]
-	
-	train_data_generator = idg.flow_from_dataframe(training_data, directory = image_dir,
-						       x_col = "filename", y_col = "label",
-						       class_mode = "categorical", shuffle = True)
-	valid_data_generator  = idg.flow_from_dataframe(validation_data, directory = image_dir,
-							x_col = "filename", y_col = "label",
-							class_mode = "categorical", shuffle = True)
-	
-	# CREATE NEW MODEL
-	model = create_new_model()
-	# COMPILE NEW MODEL
-	model.compile(loss='categorical_crossentropy',
-		      optimizer=opt,
-		      metrics=['accuracy'])
-	
-	# CREATE CALLBACKS
-	checkpoint = tf.keras.callbacks.ModelCheckpoint(save_dir+get_model_name(fold_var), 
-							monitor='val_accuracy', verbose=1, 
-							save_best_only=True, mode='max')
-	callbacks_list = [checkpoint]
-	# There can be other callbacks, but just showing one because it involves the model name
-	# This saves the best model
-	# FIT THE MODEL
-	history = model.fit(train_data_generator,
-			    epochs=num_epochs,
-			    callbacks=callbacks_list,
-			    validation_data=valid_data_generator)
-	#PLOT HISTORY
-	#		:
-	#		:
-	
-	# LOAD BEST MODEL to evaluate the performance of the model
-	model.load_weights("/saved_models/model_"+str(fold_var)+".h5")
-	
-	results = model.evaluate(valid_data_generator)
-	results = dict(zip(model.metrics_names,results))
-	
-	VALIDATION_ACCURACY.append(results['accuracy'])
-	VALIDATION_LOSS.append(results['loss'])
-	
-	tf.keras.backend.clear_session()
-	
-	fold_var += 1
-
-
-
-model = cnn()
 #print model parameters 
 model.summary
 
@@ -158,3 +100,44 @@ y_pred_bool = np.argmax(y_pred, axis=1)
 
 #print classification report
 print(classification_report(y_test, y_pred_bool))
+
+
+#######Cross Validation
+kfold = KFold(n_splits=5, shuffle=True)
+
+# K-fold Cross Validation model evaluation
+fold_no = 1
+batch_size = 100
+no_epochs =  1
+acc_per_fold, loss_per_fold = [], []
+
+for train, test in kfold.split(x_train, y_train):
+
+  # Define the model architecture
+  model = cnn(input_shape = input_shape)
+
+  # Generate a print
+  print(f'Training for fold {fold_no} ...')
+
+  # Fit data to model
+  history = model.fit(x_train[train], y_train[train],
+              batch_size=batch_size,
+              epochs=no_epochs,
+              verbose=10)
+
+  # Generate generalization metrics
+  scores = model.evaluate(x_train[test], y_train[test], verbose=0)
+  print(f'Score for fold {fold_no}: {model.metrics_names[0]} of {scores[0]}; {model.metrics_names[1]} of {scores[1]*100}%')
+  acc_per_fold.append(scores[1] * 100)
+  loss_per_fold.append(scores[0])
+
+  # Increase fold number
+  fold_no = fold_no + 1
+
+#print outcome
+print('acc_per_fold', acc_per_fold)
+print('loss_per_fold', loss_per_fold)
+
+print('mean accuracy', np.mean(np.array(acc_per_fold)))
+print('mean loss', np.mean(np.array(loss_per_fold)))
+
