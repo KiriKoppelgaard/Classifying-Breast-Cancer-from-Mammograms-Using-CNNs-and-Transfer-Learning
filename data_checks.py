@@ -8,9 +8,6 @@ import os
 import numpy as np
 from sklearn.model_selection import *
 
-#import functions
-from src.utils import read_data
-
 
 
 # load data
@@ -35,6 +32,37 @@ print(np.unique(val_labels))
 print(np.bincount(val_labels))
 
 
+image_index = 1
+print("test label: ", test_labels[image_index]) # The label is 8
+plt.imshow(test_images[image_index], cmap='Greys')
+plt.show()
+
+
+image_index = [100,101,102,103] 
+for index in image_index:
+    print("index is", index)
+    print("test label: ", test_labels[index]) # The label is 8
+    plt.imshow(test_images[index], cmap='Greys')
+    plt.show()
+
+for index in image_index:
+    print("index is", index)
+    print("test label: ", val_labels[index]) # The label is 8
+    plt.imshow(val_images[index], cmap='Greys')
+    plt.show()
+
+test_images_0 = []
+for index in range(0,len(test_labels)):
+    if test_labels[index] == 0:
+        test_images_0.append(test_images[index])
+
+val_images_0 = []
+for index in range(0,len(val_labels)):
+    if val_labels[index] == 0:
+        val_images_0.append(val_images[index])
+
+np.array_equal(test_images_0, val_images_0)
+(test_images_0==val_images_0)
 #Check whether it is the same positive images in test and val
 #Should we just combine them? 
 #Plot some stuff 
