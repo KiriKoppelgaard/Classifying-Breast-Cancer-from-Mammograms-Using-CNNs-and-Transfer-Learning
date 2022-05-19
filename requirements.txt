@@ -9,3 +9,5 @@ imageio
 scikit-image
 tqdm
 opencv-python
+pydot
+graphviz

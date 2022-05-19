@@ -108,6 +108,7 @@ def cnn(input_shape, conv_layers = [100], kernel_size = 3, dense_layers = [250])
 
     #compile model
     model.compile(optimizer='adam', 
-              loss='sparse_categorical_crossentropy')
+              loss='sparse_categorical_crossentropy', 
+              metrics=['accuracy'])
               
     return model
