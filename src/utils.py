@@ -99,8 +99,8 @@ def cnn(input_shape, conv_layers = [100], kernel_size = 3, dense_layers = [250])
     model.add(Flatten()) # Flattening the 2D to 1D arrays for fully connected layers
 
     #add dense layers
-    for layer in dense_layers: 
-        model.add(Dense(layer, activation=tf.nn.relu)) #feed-forward layer with relu activation function (following Abdelrahman et al. 2021 using leaky relu)
+    for dense_layer in dense_layers: 
+        model.add(Dense(dense_layer, activation=tf.nn.relu)) #feed-forward layer with relu activation function (following Abdelrahman et al. 2021 using leaky relu)
         model.add(Dropout(0.2)) #randomly pruning nodes to reduce overfitting
 
     #output layer
@@ -108,7 +108,6 @@ def cnn(input_shape, conv_layers = [100], kernel_size = 3, dense_layers = [250])
 
     #compile model
     model.compile(optimizer='adam', 
-              loss='sparse_categorical_crossentropy', 
-              metrics=['accuracy'])
+              loss='sparse_categorical_crossentropy')
               
     return model

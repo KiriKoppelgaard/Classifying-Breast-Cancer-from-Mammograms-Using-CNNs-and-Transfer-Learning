@@ -7,6 +7,7 @@ import os
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import *
+from keras.utils.vis_utils import plot_model
 
 #import functions
 from src.utils import *
@@ -64,45 +65,49 @@ print('Number of images in x_train', x_train.shape[0])
 print('Number of images in x_test', x_test.shape[0])
 
 #create models for hyperparameter comparison
-model = cnn(input_shape, conv_layers = [100], dense_layer = [250])
-#model = cnn(input_shape, conv_layers = [100, 50], dense_layer = [50])
+model1 = cnn(input_shape, conv_layers = [100], dense_layers = [50])
+model2 = cnn(input_shape, conv_layers = [100, 50], dense_layers = [100])
+model3 = cnn(input_shape, conv_layers = [200, 100, 50], dense_layers = [250, 100])
 
-#print model parameters 
-print(model.summary)
+for model in [model1]:#, model2, model3]:
+  #print model parameters 
+  print(model.summary())
 
-# Fit model: 1223 images?
-history = model.fit(x=x_train,y=y_train, epochs=10)
+  # Fit model: 1223 images?
+  history = model.fit(x=x_train,y=y_train, epochs=1)
 
-# Evaluate model: 524
-results = model.evaluate(x_test, y_test)
-print("test loss, test acc:", results)
+  # Evaluate model: 524
+  results = model.evaluate(x_test, y_test)
+  print("test loss, test acc:", results)
 
-#create predictions for test set 
-y_pred = model.predict(x_test, batch_size=64, verbose=1)
-print("y_pred has run")
-y_pred_bool = np.argmax(y_pred, axis=1)
+  #create predictions for test set 
+  y_pred = model.predict(x_test, batch_size=64, verbose=1)
+  print("y_pred has run")
+  y_pred_bool = np.argmax(y_pred, axis=1)
 
-#print classification report
-print(classification_report(y_test, y_pred_bool))
+  #print classification report
+  print(classification_report(y_test, y_pred_bool))
 
-# Predict using fitted model 
-# image_index = 2
-# plt.imshow(x_test[image_index].reshape(x_train.shape[1], x_train.shape[2]),cmap='Greys')
-# pred = model.predict(x_test[image_index].reshape(1, x_train.shape[1], x_train.shape[2], 1))
-# print(pred.argmax())
+  plot_model(model, 'model.png', show_shapes=True)
 
-# Visualize history
-# Plot history: Loss
-plt.plot(history.history['val_loss'])
-plt.title('Validation loss history')
-plt.ylabel('Loss value')
-plt.xlabel('No. epoch')
-plt.show()
+  # Predict using fitted model 
+  # image_index = 2
+  # plt.imshow(x_test[image_index].reshape(x_train.shape[1], x_train.shape[2]),cmap='Greys')
+  # pred = model.predict(x_test[image_index].reshape(1, x_train.shape[1], x_train.shape[2], 1))
+  # print(pred.argmax())
 
-# Plot history: Accuracy
-plt.plot(history.history['val_accuracy'])
-plt.title('Validation accuracy history')
-plt.ylabel('Accuracy value (%)')
-plt.xlabel('No. epoch')
-plt.show()
+  # Visualize history
+  # Plot history: Loss
+  plt.plot(history.history['val_loss'])
+  plt.title('Validation loss history')
+  plt.ylabel('Loss value')
+  plt.xlabel('No. epoch')
+  plt.show()
+
+  # Plot history: Accuracy
+  plt.plot(history.history['val_accuracy'])
+  plt.title('Validation accuracy history')
+  plt.ylabel('Accuracy value (%)')
+  plt.xlabel('No. epoch')
+  plt.show()
 
