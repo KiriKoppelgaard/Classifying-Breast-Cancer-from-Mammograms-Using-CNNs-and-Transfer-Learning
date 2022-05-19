@@ -3,7 +3,7 @@
 import tensorflow as tf
 import cv2
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Conv2D, Dropout, Flatten, MaxPooling2D
+from tensorflow.keras.layers import Dense, Conv2D, Dropout, Flatten, MaxPooling2D, AveragePooling2D
 
 
 def _parse_function(example):
@@ -35,13 +35,12 @@ def read_data(filename,transfer_learning=True):
         filename (string): full path to tfrecord
     """    
     images, labels = [], []
+
     # Create a TFRecordDataset to read one or more TFRecord files
     full_dataset = tf.data.TFRecordDataset(filename,num_parallel_reads=tf.data.experimental.AUTOTUNE) 
+    
     # Save in memory
     full_dataset = full_dataset.cache()
-
-    # Print size 
-    #print("Size of Training Dataset: ", len(list(full_dataset)))
 
     # map feature dictionary to each tfrecord in full_dataset
     full_dataset = full_dataset.map(_parse_function, num_parallel_calls=tf.data.experimental.AUTOTUNE)
@@ -68,17 +67,46 @@ def read_data(filename,transfer_learning=True):
     
     return images, labels
 
-def cnn(input_shape, filters = 100, kernel_size = 3, pool_size = 2, hidden_layers = [250], activation = tf.nn.leaky_relu):
+def cnn(input_shape, conv_layers = [100], kernel_size = 3, dense_layers = [250]):
+    """
+    A function that defines architecture for cnn 
+
+    Args:
+        input_shape: the input shape of the data, i.e. (x_train.shape[1], x_train.shape[2], x_train.shape[3])
+        conv_layers: an array containing the size of each convolutional layer
+        kernel_size: the size of the convolutional filter
+        dense_layers:an array containing the size of each dense layer
+
+    Returns:
+        a compiled model with a given architecture
+    """  
     # Creating a Sequential Model and adding the layers
     model = Sequential() #preparing for linear stack of layers
-    model.add(Conv2D(filters, kernel_size=(kernel_size,kernel_size), input_shape=input_shape)) #defining number of filters and size of kernel
-    model.add(MaxPooling2D(pool_size=(pool_size, pool_size))) #densing pixel information
+
+    #adding convolutional layers
+    for conv_layer in conv_layers: 
+        if conv_layer == conv_layers[0]:
+            model.add(Conv2D(conv_layer, kernel_size=(kernel_size,kernel_size), input_shape=input_shape, activation = tf.nn.relu)) #defining number of filters and size of kernel
+        else: 
+                model.add(Conv2D(conv_layer, kernel_size=(kernel_size,kernel_size), activation = tf.nn.relu)) #defining number of filters and size of kernel
+        
+        if conv_layer != conv_layers[-1]:
+            model.add(MaxPooling2D(pool_size=(2, 2))) #densing pixel information
+        else: 
+            model.add(AveragePooling2D(pool_size=(2, 2))) #densing pixel information
+
+    #flatten before fully connected network
     model.add(Flatten()) # Flattening the 2D to 1D arrays for fully connected layers
-    for layer in hidden_layers: 
-        model.add(Dense(layer, activation=activation)) #feed-forward layer with relu activation function (following Abdelrahman et al. 2021 using leaky relu)
+
+    #add dense layers
+    for layer in dense_layers: 
+        model.add(Dense(layer, activation=tf.nn.relu)) #feed-forward layer with relu activation function (following Abdelrahman et al. 2021 using leaky relu)
         model.add(Dropout(0.2)) #randomly pruning nodes to reduce overfitting
+
+    #output layer
     model.add(Dense(2, activation='sigmoid')) #feed-forward layer with softmax
 
+    #compile model
     model.compile(optimizer='adam', 
               loss='sparse_categorical_crossentropy', 
               metrics=['accuracy'])

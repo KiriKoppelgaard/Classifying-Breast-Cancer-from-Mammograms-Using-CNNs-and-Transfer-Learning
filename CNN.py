@@ -11,7 +11,6 @@ from sklearn.model_selection import *
 #import functions
 from src.utils import *
 
-
 # load data
 root_dir = os.path.abspath("")
 
@@ -35,22 +34,19 @@ images = [i for image in images for i in image]
 labels = [l for label in labels for l in label]
 
 # define train and test
-X=np.array(images)[0:1000]
-y=np.array(labels)[0:1000]
+X=np.array(images)
+y=np.array(labels)
 
-print(len(images))
-print(len(labels))
+#divide data into train, test and val
+x_train, x_test1, y_train, y_test1 = train_test_split(X, y, test_size=0.3, random_state=42,
+                                                      shuffle=True,stratify=y)
 
-#divide data into train and test
-x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=0,shuffle=True,stratify=y)
-print(x_train.shape, x_test.shape, y_train.shape, y_test.shape)
+x_val, x_test, y_val, y_test = train_test_split(x_test1, y_test1, test_size=0.3, random_state=42,
+                                                shuffle=True,stratify=y_test1)
 
-# plot example image
-image_index = 7
-print(y_train[image_index]) 
-#plt.imshow(x_train[image_index], cmap='Greys')
-#plt.show()
-
+#clear up space 
+del X
+del y
 
 # Reshaping the array to 4-dims so that it can work with the Keras API
 x_train = x_train.reshape(x_train.shape[0], x_train.shape[1], x_train.shape[2], 1) 
@@ -64,34 +60,22 @@ x_test = x_test.astype('float32')
 # Normalizing the RGB codes by dividing it to the max RGB value.
 x_train /= 255
 x_test /= 255
-print('x_train shape:', x_train.shape)
 print('Number of images in x_train', x_train.shape[0])
 print('Number of images in x_test', x_test.shape[0])
 
-#create model
-model = cnn(input_shape)
+#create models for hyperparameter comparison
+model = cnn(input_shape, conv_layers = [100], dense_layer = [250])
+#model = cnn(input_shape, conv_layers = [100, 50], dense_layer = [50])
 
 #print model parameters 
-model.summary
+print(model.summary)
 
-# Compile model
-model.compile(optimizer='adam', 
-              loss='sparse_categorical_crossentropy', 
-              metrics=['accuracy'])
-
-print("model has been compiled")
 # Fit model: 1223 images?
-model.fit(x=x_train,y=y_train, epochs=1)
-print("model has been fitted")
-# Evaluate model: 524
-model.evaluate(x_test, y_test)
-print("model has been evaluated")
+history = model.fit(x=x_train,y=y_train, epochs=10)
 
-# Predict using fitted model 
-# image_index = 2
-# plt.imshow(x_test[image_index].reshape(x_train.shape[1], x_train.shape[2]),cmap='Greys')
-# pred = model.predict(x_test[image_index].reshape(1, x_train.shape[1], x_train.shape[2], 1))
-# print(pred.argmax())
+# Evaluate model: 524
+results = model.evaluate(x_test, y_test)
+print("test loss, test acc:", results)
 
 #create predictions for test set 
 y_pred = model.predict(x_test, batch_size=64, verbose=1)
@@ -101,43 +85,24 @@ y_pred_bool = np.argmax(y_pred, axis=1)
 #print classification report
 print(classification_report(y_test, y_pred_bool))
 
+# Predict using fitted model 
+# image_index = 2
+# plt.imshow(x_test[image_index].reshape(x_train.shape[1], x_train.shape[2]),cmap='Greys')
+# pred = model.predict(x_test[image_index].reshape(1, x_train.shape[1], x_train.shape[2], 1))
+# print(pred.argmax())
 
-#######Cross Validation
-kfold = KFold(n_splits=5, shuffle=True)
+# Visualize history
+# Plot history: Loss
+plt.plot(history.history['val_loss'])
+plt.title('Validation loss history')
+plt.ylabel('Loss value')
+plt.xlabel('No. epoch')
+plt.show()
 
-# K-fold Cross Validation model evaluation
-fold_no = 1
-batch_size = 100
-no_epochs =  1
-acc_per_fold, loss_per_fold = [], []
-
-for train, test in kfold.split(x_train, y_train):
-
-  # Define the model architecture
-  model = cnn(input_shape = input_shape)
-
-  # Generate a print
-  print(f'Training for fold {fold_no} ...')
-
-  # Fit data to model
-  history = model.fit(x_train[train], y_train[train],
-              batch_size=batch_size,
-              epochs=no_epochs,
-              verbose=10)
-
-  # Generate generalization metrics
-  scores = model.evaluate(x_train[test], y_train[test], verbose=0)
-  print(f'Score for fold {fold_no}: {model.metrics_names[0]} of {scores[0]}; {model.metrics_names[1]} of {scores[1]*100}%')
-  acc_per_fold.append(scores[1] * 100)
-  loss_per_fold.append(scores[0])
-
-  # Increase fold number
-  fold_no = fold_no + 1
-
-#print outcome
-print('acc_per_fold', acc_per_fold)
-print('loss_per_fold', loss_per_fold)
-
-print('mean accuracy', np.mean(np.array(acc_per_fold)))
-print('mean loss', np.mean(np.array(loss_per_fold)))
+# Plot history: Accuracy
+plt.plot(history.history['val_accuracy'])
+plt.title('Validation accuracy history')
+plt.ylabel('Accuracy value (%)')
+plt.xlabel('No. epoch')
+plt.show()
 
