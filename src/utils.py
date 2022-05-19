@@ -1,10 +1,12 @@
 #source: https://www.kaggle.com/code/aayushkandpal/ddsm-vgg19/notebook
  
 import tensorflow as tf
+from tensorflow import keras
 import cv2
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Conv2D, Dropout, Flatten, MaxPooling2D, AveragePooling2D
-
+from sklearn.metrics import classification_report
+import pandas as pd
 
 def _parse_function(example):
     """
@@ -105,10 +107,5 @@ def cnn(input_shape, conv_layers = [100], kernel_size = 3, dense_layers = [250])
 
     #output layer
     model.add(Dense(2, activation='sigmoid')) #feed-forward layer with softmax
-
-    #compile model
-    model.compile(optimizer='adam', 
-              loss='sparse_categorical_crossentropy', 
-              metrics=['accuracy'])
               
     return model

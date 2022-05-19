@@ -1,13 +1,12 @@
 import tensorflow as tf
 import matplotlib.pyplot as plt
 from sklearn.metrics import classification_report
-from sklearn.model_selection import KFold, StratifiedKFold
-from tensorflow.keras.wrappers.scikit_learn import KerasRegressor
 import os
 import numpy as np
-import pandas as pd
 from sklearn.model_selection import *
 from keras.utils.vis_utils import plot_model
+from contextlib import redirect_stdout
+import pandas as pd
 
 #import functions
 from src.utils import *
@@ -15,11 +14,11 @@ from src.utils import *
 # load data
 root_dir = os.path.abspath("")
 
-filenames=[os.path.join(root_dir,'data','training10_0','training10_0.tfrecords')#,#'../input/ddsm-mammography/training10_0/training10_0.tfrecords',
-          #os.path.join(root_dir,'data','training10_1','training10_1.tfrecords'), #'../input/ddsm-mammography/training10_1/training10_1.tfrecords',
-          #os.path.join(root_dir,'data','training10_2','training10_2.tfrecords'),#'../input/ddsm-mammography/training10_2/training10_2.tfrecords',
-          #os.path.join(root_dir,'data','training10_3','training10_3.tfrecords'), #'../input/ddsm-mammography/training10_3/training10_3.tfrecords',
-          #os.path.join(root_dir,'data','training10_4','training10_4.tfrecords') #'../input/ddsm-mammography/training10_4/training10_4.tfrecords'
+filenames=[os.path.join(root_dir,'data','training10_0','training10_0.tfrecords'),#'../input/ddsm-mammography/training10_0/training10_0.tfrecords',
+          os.path.join(root_dir,'data','training10_1','training10_1.tfrecords'), #'../input/ddsm-mammography/training10_1/training10_1.tfrecords',
+          os.path.join(root_dir,'data','training10_2','training10_2.tfrecords'),#'../input/ddsm-mammography/training10_2/training10_2.tfrecords',
+          os.path.join(root_dir,'data','training10_3','training10_3.tfrecords'), #'../input/ddsm-mammography/training10_3/training10_3.tfrecords',
+          os.path.join(root_dir,'data','training10_4','training10_4.tfrecords') #'../input/ddsm-mammography/training10_4/training10_4.tfrecords'
           ]
 
 # empty lists
@@ -69,32 +68,38 @@ model1 = cnn(input_shape, conv_layers = [100], dense_layers = [50])
 model2 = cnn(input_shape, conv_layers = [100, 50], dense_layers = [100])
 model3 = cnn(input_shape, conv_layers = [200, 100, 50], dense_layers = [250, 100])
 
-for model in [model1]:#, model2, model3]:
-  #print model parameters 
-  print(model.summary())
+#counter
+iteration = 0
 
-  # Fit model: 1223 images?
-  history = model.fit(x=x_train,y=y_train, epochs=1)
+for model in [model1, model2, model3]:
+  #Create print
+  iteration += 1
+  print('Model', iteration, 'initializing')
 
-  # Evaluate model: 524
-  results = model.evaluate(x_test, y_test)
-  print("test loss, test acc:", results)
+  #compile model
+  model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics = ['accuracy'])
+
+  #save model parameters 
+  with open(f'output/model{iteration}_summary.txt', 'w') as f:
+    with redirect_stdout(f):
+        model.summary()
+
+  # Fit model
+  history = model.fit(x=x_train,y=y_train, epochs=100, validation_data=(x_val, y_val))
+
+  # Evaluate model
+  model.evaluate(x_test, y_test)
 
   #create predictions for test set 
   y_pred = model.predict(x_test, batch_size=64, verbose=1)
-  print("y_pred has run")
   y_pred_bool = np.argmax(y_pred, axis=1)
 
-  #print classification report
-  print(classification_report(y_test, y_pred_bool))
+  #save classification report
+  clsf_report = pd.DataFrame(classification_report(y_test, y_pred_bool, output_dict=True)).transpose()
+  clsf_report.to_csv(f'output/model{iteration}_clsf_report.csv', index= True)
 
-  plot_model(model, 'model.png', show_shapes=True)
-
-  # Predict using fitted model 
-  # image_index = 2
-  # plt.imshow(x_test[image_index].reshape(x_train.shape[1], x_train.shape[2]),cmap='Greys')
-  # pred = model.predict(x_test[image_index].reshape(1, x_train.shape[1], x_train.shape[2], 1))
-  # print(pred.argmax())
+  #plot model architecture
+  plot_model(model, f'output/model{iteration}_architecture.png', show_shapes=True)
 
   # Visualize history
   # Plot history: Loss
@@ -102,12 +107,19 @@ for model in [model1]:#, model2, model3]:
   plt.title('Validation loss history')
   plt.ylabel('Loss value')
   plt.xlabel('No. epoch')
-  plt.show()
+  plt.savefig(f'output/model{iteration}_loss.png')
+  plt.clf() 
 
   # Plot history: Accuracy
   plt.plot(history.history['val_accuracy'])
   plt.title('Validation accuracy history')
   plt.ylabel('Accuracy value (%)')
   plt.xlabel('No. epoch')
-  plt.show()
+  plt.savefig(f'output/model{iteration}_accuracy.png')
+  plt.clf()
 
+  # Predict using fitted model 
+  # image_index = 2
+  # plt.imshow(x_test[image_index].reshape(x_train.shape[1], x_train.shape[2]),cmap='Greys')
+  # pred = model.predict(x_test[image_index].reshape(1, x_train.shape[1], x_train.shape[2], 1))
+  # print(pred.argmax())
