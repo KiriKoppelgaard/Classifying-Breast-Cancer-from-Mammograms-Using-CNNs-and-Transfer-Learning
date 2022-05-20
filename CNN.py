@@ -50,12 +50,14 @@ del y
 
 # Reshaping the array to 4-dims so that it can work with the Keras API
 x_train = x_train.reshape(x_train.shape[0], x_train.shape[1], x_train.shape[2], 1) 
-x_test = x_test.reshape(x_test.shape[0], x_train.shape[1], x_train.shape[2], 1)
+x_test = x_test.reshape(x_test.shape[0], x_test.shape[1], x_test.shape[2], 1)
+x_val =  x_val.reshape(x_val.shape[0], x_val.shape[1], x_val.shape[2], 1)
 input_shape = (x_train.shape[1], x_train.shape[2], x_train.shape[3])
 
 # Making sure that the values are float so that we can get decimal points after division
 x_train = x_train.astype('float32')
 x_test = x_test.astype('float32')
+x_val = x_val.astype('float32')
 
 # Normalizing the RGB codes by dividing it to the max RGB value.
 x_train /= 255
@@ -85,7 +87,7 @@ for model in [model1, model2, model3]:
         model.summary()
 
   # Fit model
-  history = model.fit(x=x_train,y=y_train, epochs=100, validation_data=(x_val, y_val))
+  history = model.fit(x=x_train,y=y_train, epochs=10, validation_data=(x_val, y_val))
 
   # Evaluate model
   model.evaluate(x_test, y_test)
