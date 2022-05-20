@@ -4,7 +4,8 @@ import tensorflow as tf
 from tensorflow import keras
 import cv2
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Conv2D, Dropout, Flatten, MaxPooling2D, AveragePooling2D
+from tensorflow.keras.layers import Dense, Conv2D, Dropout, Flatten, MaxPooling2D, AveragePooling2D, BatchNormalization, Activation
+from tensorflow.keras.applications import InceptionV3, EfficientNetV2M
 from sklearn.metrics import classification_report
 import pandas as pd
 
@@ -65,7 +66,7 @@ def read_data(filename,transfer_learning=True):
         if transfer_learning:
             # reformat for RGB channels (since the images are b/w, we duplicate grey scale values)
             image=cv2.merge([image,image,image])
-        image # commented out from orig kaggle code 
+        #image # commented out from orig kaggle code 
         # append reshapes images 
         images.append(image)
         # append labels
@@ -112,4 +113,40 @@ def cnn(input_shape, conv_layers = [100], kernel_size = 3, dense_layers = [250])
     #output layer
     model.add(Dense(2, activation='sigmoid')) #feed-forward layer with softmax
               
+    return model
+
+def transfer_learning_model(base_model): 
+    if base_model == 'inceptionv3':
+            base_model = InceptionV3(
+                input_shape=(299,299,3), # define input/image shape
+                weights='imagenet', # include pre-trained weights from training on imagenet
+                include_top=False) # don't include top/last fully connected layer
+    elif base_model == 'efficientnetv2m':
+            base_model = EfficientNetV2M(
+                input_shape=(299,299,3), # define input/image shape
+                weights='imagenet', # include pre-trained weights from training on imagenet
+                include_top=False) # don't include top/last fully connected layer
+    
+    model=Sequential() # define model as sequential so we can add layers sequentially 
+    model.add(base_model)  # add base model
+
+    model.add(Dropout(0.2)) # 0.2 dropout 
+    model.add(Flatten()) # flatten to prepare for fully connected layers 
+    model.add(BatchNormalization()) # batch normalisation 
+
+    # add two fully connected layers with 256 nodes, batch normalisation, and relu activation
+    model.add(Dense(256))
+    model.add(BatchNormalization())
+    model.add(Activation('relu')) 
+    model.add(Dropout(0.2))
+    model.add(Dense(256))
+    model.add(BatchNormalization())
+    model.add(Activation('relu'))
+    model.add(Dropout(0.2)) # dropout 0.2
+    model.add(Dense(2,activation='sigmoid')) # last layer
+
+    for layer in base_model.layers:
+        layer.trainable = False # keep weights from pre-training and only update new layers 
+
+
     return model
