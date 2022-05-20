@@ -109,19 +109,23 @@ for model in [model1, model2, model3]:
 
   # Visualize history
   # Plot history: Loss
-  plt.plot(history.history['val_loss'])
-  plt.title('Validation loss history')
-  plt.ylabel('Loss value')
-  plt.xlabel('No. epoch')
-  plt.savefig(f'output/model{iteration}_loss.png')
-  plt.clf() 
-
-  # Plot history: Accuracy
-  plt.plot(history.history['val_accuracy'])
+  plt.plot(np.array(history.history['val_loss'])*100, label = 'Validation Accuracy')
+  plt.plot(np.array(history.history['loss'])*100, label = 'Training Accuracy')
   plt.title('Validation accuracy history')
   plt.ylabel('Accuracy value (%)')
   plt.xlabel('No. epoch')
-  plt.savefig(f'output/model{iteration}_accuracy.png')
+  plt.legend(loc="upper right")
+  plt.savefig(f'output/model{iteration}_loss.jpg')
+  plt.clf()
+
+  # Plot history: Accuracy
+  plt.plot(np.array(history.history['val_accuracy'])*100, label = 'Validation Accuracy')
+  plt.plot(np.array(history.history['accuracy'])*100, label = 'Training Accuracy')
+  plt.title('Validation accuracy history')
+  plt.ylabel('Accuracy value (%)')
+  plt.xlabel('No. epoch')
+  plt.legend(loc="upper left")
+  plt.savefig(f'output/model{iteration}_accuracy.jpg')
   plt.clf()
 
   # Predict using fitted model 
