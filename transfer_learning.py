@@ -51,10 +51,7 @@ x_val, x_test, y_val, y_test = train_test_split(x_test1, y_test1, test_size=0.3,
 del X
 del y
 
-# Reshaping the array to 4-dims so that it can work with the Keras API
-# x_train = x_train.reshape(x_train.shape[0], x_train.shape[1], x_train.shape[2], 1) 
-# x_test = x_test.reshape(x_test.shape[0], x_train.shape[1], x_train.shape[2], 1)
-# x_val = x_val.reshape(x_val.shape[0], x_val.shape[1], x_val.shape[2], 1)
+print('x_train.shape: ', x_train.shape, 'x_test.shape', x_test.shape, 'x_val.shape', x_val.shape)
 input_shape = (x_train.shape[1], x_train.shape[2], x_train.shape[3])
 
 # Making sure that the values are float so that we can get decimal points after division
@@ -65,17 +62,21 @@ x_val = x_val.astype('float32')
 # Normalizing the RGB codes by dividing it to the max RGB value.
 x_train /= 255
 x_test /= 255
-x_val / 255
-print('Number of images in x_train', x_train.shape[0], 'and x_train shape is', x_train.shape)
-print('Number of images in x_test', x_test.shape[0], 'and x_test shape is', x_test.shape)
-print('Number of images in x_val', x_val.shape[0], 'and x_val shape is', x_val.shape)
+x_val /= 255
+print('Number of images in x_train', x_train.shape[0], ', x_train shape is', x_train.shape)
+print('Number of images in x_test', x_test.shape[0], ', x_test shape is', x_test.shape)
+print('Number of images in x_val', x_val.shape[0], ', x_val shape is', x_val.shape)
 print('Total number of images:', x_train.shape[0] + x_test.shape[0] + x_val.shape[0])
 
 #create model
-inceptionv3 = transfer_learning_model('inceptionv3')
+inceptionv3 = transfer_learning_model('inceptionv3') 
+efficientnetv2 = transfer_learning_model('efficientnetv2m') 
 
+# Print layers 
 inceptionv3.summary()
-# inceptionv3 = InceptionV3(
+efficientnetv2.summary()
+
+# inceptionv3 = InceptionV3( ## if we do a summary of this, we get the layers of inceptionv3
 #     include_top=True, # include the fully-connected layer at the top, as the last layer of the network
 #     weights="imagenet", # include 
 #     input_tensor=None,
@@ -86,25 +87,51 @@ inceptionv3.summary()
 # )
 
 #counter
-iteration = 0
+models = ['inceptionv3'] #, 'efficientnetv2m']
 
-for model in [inceptionv3]:
+for base_model in models: 
   #Create print
-  iteration += 1
-  print('Model', iteration, 'initializing')
+  if base_model == 'inceptionv3':
+    model = transfer_learning_model('inceptionv3') 
+  elif base_model == 'efficientnetv2m':
+    model = transfer_learning_model('efficientnetv2m') 
+  
+  print(base_model, 'initializing')
 
-  #compile model
+  #compile model (where base_model layers are non-trainable)
   model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics = ['accuracy'])
 
   #save model parameters 
-  with open(f'output/inceptionv3{iteration}_summary.txt', 'w') as f:
+  with open(f'output/{base_model}_summary.txt', 'w') as f:
     with redirect_stdout(f):
         model.summary()
 
-  # Fit model
-  history = model.fit(x=x_train,y=y_train, epochs=10, validation_data=(x_val, y_val))
 
-  # Evaluate model
+  # Fit initial model (train on a few epochs before unfreezing top layers of base model for fine-tuning)
+  history = model.fit(x=x_train,y=y_train, epochs=5, validation_data=(x_val, y_val))
+
+  ############## IMPLEMENT THIS ##############
+  # first: train only the top layers (which were randomly initialized)
+  # i.e. freeze all convolutional InceptionV3 layers
+  # we chose to train the top 2 inception blocks, i.e. we will freeze
+  # the first 249 layers and unfreeze the rest:
+  for layer in model.layers[:249]:
+    layer.trainable = False
+  for layer in model.layers[249:]:
+    layer.trainable = True
+
+  # we need to recompile the model for these modifications to take effect
+  # we use SGD with a low learning rate
+  from tensorflow.keras.optimizers import SGD
+  model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='categorical_crossentropy')
+
+  # we train our model again (this time fine-tuning the top 2 inception blocks
+  # alongside the top Dense layers
+  model.fit(...)
+
+  ############## IMPLEMENT THIS ############## https://keras.io/api/applications/#usage-examples-for-image-classification-models
+  # https://medium.com/analytics-vidhya/transfer-learning-using-inception-v3-for-image-classification-86700411251b
+  # Evaluate model  
   model.evaluate(x_test, y_test)
 
   #create predictions for test set 
@@ -113,33 +140,31 @@ for model in [inceptionv3]:
 
   #save classification report
   clsf_report = pd.DataFrame(classification_report(y_test, y_pred_bool, output_dict=True)).transpose()
-  clsf_report.to_csv(f'output/model{iteration}_clsf_report.csv', index= True)
+  clsf_report.to_csv(f'output/{base_model}_clsf_report.csv', index= True)
 
   #plot model architecture
-  plot_model(model, f'output/model{iteration}_architecture.png', show_shapes=True)
+  plot_model(model, f'output/{base_model}_architecture.png', show_shapes=True)
 
   # Visualize history
   # Plot history: Loss
-  plt.plot(history.history['val_loss'])
-  plt.title('Validation loss history')
-  plt.ylabel('Loss value')
-  plt.xlabel('No. epoch')
-  plt.savefig(f'output/model{iteration}_loss.png')
-  plt.clf() 
-
-  # Plot history: Accuracy
-  plt.plot(history.history['val_accuracy'])
+  plt.plot(np.array(history.history['val_loss'])*100, label = 'Validation Accuracy')
+  plt.plot(np.array(history.history['loss'])*100, label = 'Training Accuracy')
   plt.title('Validation accuracy history')
   plt.ylabel('Accuracy value (%)')
   plt.xlabel('No. epoch')
-  plt.savefig(f'output/model{iteration}_accuracy.png')
+  plt.legend(loc="upper right")
+  plt.savefig(f'output/{base_model}_loss.jpg')
+  plt.clf()
+
+  # Plot history: Accuracy
+  plt.plot(np.array(history.history['val_accuracy'])*100, label = 'Validation Accuracy')
+  plt.plot(np.array(history.history['accuracy'])*100, label = 'Training Accuracy')
+  plt.title('Validation accuracy history')
+  plt.ylabel('Accuracy value (%)')
+  plt.xlabel('No. epoch')
+  plt.legend(loc="upper left")
+  plt.savefig(f'output/{base_model}_accuracy.jpg')
   plt.clf()
 
 
-  # Predict using fitted model 
-  # image_index = 2
-  # plt.imshow(x_test[image_index].reshape(x_train.shape[1], x_train.shape[2]),cmap='Greys')
-  # pred = model.predict(x_test[image_index].reshape(1, x_train.shape[1], x_train.shape[2], 1))
-  # print(pred.argmax())
-
-
+## https://keras.io/api/applications/#usage-examples-for-image-classification-models
