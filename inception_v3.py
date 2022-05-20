@@ -66,32 +66,13 @@ x_val = x_val.astype('float32')
 x_train /= 255
 x_test /= 255
 x_val / 255
-print('Number of images in x_train ', x_train.shape[0], ' and x_train shape is ', x_train.shape)
-print('Number of images in x_test ', x_test.shape[0], ' and x_test shape is ', x_test.shape)
-print('Number of images in x_val ', x_val.shape[0], ' and x_val shape is ', x_val.shape)
-print('Total number of images: ', x_train.shape[0] + x_test.shape[0] + x_val.shape[0])
+print('Number of images in x_train', x_train.shape[0], 'and x_train shape is', x_train.shape)
+print('Number of images in x_test', x_test.shape[0], 'and x_test shape is', x_test.shape)
+print('Number of images in x_val', x_val.shape[0], 'and x_val shape is', x_val.shape)
+print('Total number of images:', x_train.shape[0] + x_test.shape[0] + x_val.shape[0])
 
 #create model
-base_model = InceptionV3(input_shape=(299,299,3), weights='imagenet', include_top=False) # include pre-trained weights from training on imagenet; we could also try to include a version without? 
-inceptionv3=Sequential()
-inceptionv3.add(base_model) 
-# add additional layers 
-inceptionv3.add(Dropout(0.2)) # 0.2 dropout  
-inceptionv3.add(Flatten()) # flatten to prepare for fully connected layers 
-inceptionv3.add(BatchNormalization()) 
-# add two fully connected layers with 256 nodes, batch normalisation, and relu activation
-inceptionv3.add(Dense(256))
-inceptionv3.add(BatchNormalization())
-inceptionv3.add(Activation('relu')) 
-inceptionv3.add(Dropout(0.2))
-inceptionv3.add(Dense(256))
-inceptionv3.add(BatchNormalization())
-inceptionv3.add(Activation('relu'))
-inceptionv3.add(Dropout(0.2)) # dropout 0.2
-inceptionv3.add(Dense(2,activation='sigmoid')) # last layer
-
-for layer in base_model.layers:
-     layer.trainable = False
+inceptionv3 = transfer_learning_model('inceptionv3')
 
 inceptionv3.summary()
 # inceptionv3 = InceptionV3(
@@ -121,7 +102,7 @@ for model in [inceptionv3]:
         model.summary()
 
   # Fit model
-  history = model.fit(x=x_train,y=y_train, epochs=2, validation_data=(x_val, y_val))
+  history = model.fit(x=x_train,y=y_train, epochs=10, validation_data=(x_val, y_val))
 
   # Evaluate model
   model.evaluate(x_test, y_test)
@@ -154,8 +135,11 @@ for model in [inceptionv3]:
   plt.savefig(f'output/model{iteration}_accuracy.png')
   plt.clf()
 
+
   # Predict using fitted model 
   # image_index = 2
   # plt.imshow(x_test[image_index].reshape(x_train.shape[1], x_train.shape[2]),cmap='Greys')
   # pred = model.predict(x_test[image_index].reshape(1, x_train.shape[1], x_train.shape[2], 1))
   # print(pred.argmax())
+
+
