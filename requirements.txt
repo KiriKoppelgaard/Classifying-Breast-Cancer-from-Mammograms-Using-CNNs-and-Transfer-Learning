@@ -9,7 +9,6 @@ imageio
 scikit-image
 tqdm
 opencv-python
-contextlib
 pydot
 graphviz
 pydotplus
