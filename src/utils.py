@@ -56,15 +56,16 @@ def read_data(filename,transfer_learning=True):
         # convert to numeric tensor
         image = tf.io.decode_raw(image_features['image'], tf.uint8)
         # reshape 
-        image = tf.reshape(image, [299, 299])        
+        image = tf.reshape(image, [299, 299])       
         # make numpy again
         image=image.numpy()
-        # downsize image to 100x100 pixels
-        image=cv2.resize(image,(100,100))
+        # if not transfer_learning: 
+        #     # downsize image to 100x100 pixels
+        #     image=cv2.resize(image,(100,100))
         if transfer_learning:
             # reformat for RGB channels (since the images are b/w, we duplicate grey scale values)
             image=cv2.merge([image,image,image])
-        #image # commented out from orig kaggle code 
+        image # commented out from orig kaggle code 
         # append reshapes images 
         images.append(image)
         # append labels

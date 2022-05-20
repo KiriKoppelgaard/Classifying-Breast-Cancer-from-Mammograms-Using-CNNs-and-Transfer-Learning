@@ -8,7 +8,7 @@ from keras.utils.vis_utils import plot_model
 from contextlib import redirect_stdout
 import pandas as pd
 
-from tensorflow.keras.applications import InceptionV3
+from tensorflow.keras.applications import EfficientNetV2M
 from tensorflow.keras.layers import Dense, Dropout, Flatten, BatchNormalization, Activation # MaxPooling2D, AveragePooling2D
 
 #import functions
@@ -52,9 +52,9 @@ del X
 del y
 
 # Reshaping the array to 4-dims so that it can work with the Keras API
-# x_train = x_train.reshape(x_train.shape[0], x_train.shape[1], x_train.shape[2], 1) 
-# x_test = x_test.reshape(x_test.shape[0], x_train.shape[1], x_train.shape[2], 1)
-# x_val = x_val.reshape(x_val.shape[0], x_val.shape[1], x_val.shape[2], 1)
+x_train = x_train.reshape(x_train.shape[0], x_train.shape[1], x_train.shape[2], 1) 
+x_test = x_test.reshape(x_test.shape[0], x_train.shape[1], x_train.shape[2], 1)
+x_val = x_val.reshape(x_val.shape[0], x_val.shape[1], x_val.shape[2], 1)
 input_shape = (x_train.shape[1], x_train.shape[2], x_train.shape[3])
 
 # Making sure that the values are float so that we can get decimal points after division
@@ -66,10 +66,10 @@ x_val = x_val.astype('float32')
 x_train /= 255
 x_test /= 255
 x_val / 255
-print('Number of images in x_train ', x_train.shape[0], ' and x_train shape is ', x_train.shape)
-print('Number of images in x_test ', x_test.shape[0], ' and x_test shape is ', x_test.shape)
-print('Number of images in x_val ', x_val.shape[0], ' and x_val shape is ', x_val.shape)
-print('Total number of images: ', x_train.shape[0] + x_test.shape[0] + x_val.shape[0])
+print('Number of images in x_train', x_train.shape[0])
+print('Number of images in x_test', x_test.shape[0])
+print('Number of images in x_val', x_val.shape[0])
+print("Total number of images: ", x_train.shape[0] + x_test.shape[0] + x_val.shape[0])
 
 #create model
 base_model = InceptionV3(input_shape=(299,299,3), weights='imagenet', include_top=False) # include pre-trained weights from training on imagenet; we could also try to include a version without? 
