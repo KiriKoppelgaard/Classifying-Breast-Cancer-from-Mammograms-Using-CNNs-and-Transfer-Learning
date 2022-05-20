@@ -1,7 +1,7 @@
 tensorflow
 scikit-learn
 pandas
-numpy 
+numpy==1.21.6
 seaborn
 preprocessing
 matplotlib
@@ -9,5 +9,7 @@ imageio
 scikit-image
 tqdm
 opencv-python
+contextlib
 pydot
 graphviz
+pydotplus

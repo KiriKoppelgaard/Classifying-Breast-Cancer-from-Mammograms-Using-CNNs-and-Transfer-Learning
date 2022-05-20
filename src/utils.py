@@ -44,6 +44,9 @@ def read_data(filename,transfer_learning=True):
     # Save in memory
     full_dataset = full_dataset.cache()
 
+    #drop corrupted files 
+    full_dataset = full_dataset.apply(tf.data.experimental.ignore_errors()) 
+
     # map feature dictionary to each tfrecord in full_dataset
     full_dataset = full_dataset.map(_parse_function, num_parallel_calls=tf.data.experimental.AUTOTUNE)
     # for each image
