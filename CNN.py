@@ -62,8 +62,12 @@ x_val = x_val.astype('float32')
 # Normalizing the RGB codes by dividing it to the max RGB value.
 x_train /= 255
 x_test /= 255
+x_val /= 255
+
 print('Number of images in x_train', x_train.shape[0])
 print('Number of images in x_test', x_test.shape[0])
+print('Number of images in x_val', x_val.shape[0])
+
 
 #create models for hyperparameter comparison
 model1 = cnn(input_shape, conv_layers = [100], dense_layers = [50])
