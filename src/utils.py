@@ -1,21 +1,14 @@
 import tensorflow as tf
 from tensorflow import keras
 import cv2
-from tensorflow.keras.models import Sequential
+from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.layers import Dense, Conv2D, Dropout, Flatten, MaxPooling2D, AveragePooling2D, BatchNormalization, Activation, GlobalAveragePooling2D
 from tensorflow.keras.applications import InceptionV3, EfficientNetV2M
-# from sklearn.metrics import classification_report
-
-
-
-from tensorflow.keras.models import Model
-
 import matplotlib.pyplot as plt
-import numpy as np
-from sklearn.metrics import confusion_matrix
 import seaborn as sns
+import numpy as np
 import pandas as pd
-
+from sklearn.metrics import confusion_matrix #, classification_report
 
 def _parse_function(example):
     """

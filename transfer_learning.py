@@ -56,8 +56,8 @@ images = [i for image in images for i in image]
 labels = [l for label in labels for l in label]
 
 # define train and test
-X=np.array(images)
-y=np.array(labels)
+X=np.array(images)[:500] # CHANGE BACK FOR FINAL
+y=np.array(labels)[:500] # CHANGE BACK FOR FINAL
 
 # divide data into train, test and val
 x_train, x_test1, y_train, y_test1 = train_test_split(X, y, test_size=0.3, random_state=42,
@@ -93,7 +93,7 @@ print('Total number of images:', x_train.shape[0] + x_test.shape[0] + x_val.shap
 tracker = EmissionsTracker()
 
 # prepare names of base models to loop through
-base_models = ['efficientnetv2m'] # 'inceptionv3', 
+base_models = ['efficientnetv2m'] # 'inceptionv3'] #,
 
 # fine-tune and evaluate base models
 for base_model in base_models: 
@@ -119,9 +119,9 @@ for base_model in base_models:
   start_time = datetime.now()
 
   # fit initial model (train on a few epochs before unfreezing two top blocks of base model for fine-tuning)
-  history = model.fit(x=x_train,y=y_train, epochs=1, validation_data=(x_val, y_val))
+  history_w_frozen_layers = model.fit(x=x_train,y=y_train, epochs=2, validation_data=(x_val, y_val))
 
-  # unfreeze two top blocks og base model, so they can be fine-tuned
+  # unfreeze two top blocks of base model, so they can be fine-tuned
   if base_model == 'inceptionv3':
     for layer in model.layers[:249]:
       layer.trainable = False
@@ -143,7 +143,7 @@ for base_model in base_models:
         model.summary()   
 
   # fine-tune model (training two top blocks of base model + fully-connected layers) 
-  history_finetuning = model.fit(x=x_train,y=y_train, epochs=1, validation_data=(x_val, y_val))
+  history = model.fit(x=x_train,y=y_train, epochs=5, validation_data=(x_val, y_val))
 
   #save environmental impact 
   emissions: float = tracker.stop()
@@ -168,37 +168,14 @@ for base_model in base_models:
   clsf_report.to_csv(f'output/{base_model}/{base_model}_clsf_report.csv', index= True)
 
   # plot model architecture
-  plot_model(model, f'output/{base_model}/{base_model}_architecture.png', show_shapes=True)
+  #plot_model(model, f'output/{base_model}/{base_model}_architecture.png', show_shapes=True) ### UNDO BEFORE FINAL
 
-  # plot history: loss
-  plt.plot(np.array(history_finetuning.history['val_loss'])*100, label = 'Validation Loss')
-  plt.plot(np.array(history_finetuning.history['loss'])*100, label = 'Training Loss')
-  plt.title('Validation loss history')
-  plt.ylabel('Loss value (%)')
-  plt.xlabel('No. epoch')
-  plt.legend(loc="upper right")
-  plt.savefig(f'output/{base_model}/{base_model}_loss.jpg')
-  plt.clf()
-
-  # plot history: accuracy
-  plt.plot(np.array(history_finetuning.history['val_accuracy'])*100, label = 'Validation Accuracy')
-  plt.plot(np.array(history_finetuning.history['accuracy'])*100, label = 'Training Accuracy')
-  plt.title('Validation accuracy history')
-  plt.ylabel('Accuracy value (%)')
-  plt.xlabel('No. epoch')
-  plt.legend(loc="upper left")
-  plt.savefig(f'output/{base_model}/{base_model}_accuracy.jpg')
-  plt.clf()
+  # plot model history
+  history_plot(base_model, history_w_frozen_layers,'loss', frozen_layers=True)
+  history_plot(base_model, history_w_frozen_layers ,'accuracy', frozen_layers=True)
+  history_plot(base_model, history,'loss')
+  history_plot(base_model, history,'accuracy')
 
   # create confusion matrix
-  cm = pd.DataFrame(confusion_matrix(y_test, y_pred_bool))
-  ax= plt.subplot()
-  svm = sns.heatmap(cm, annot=True, fmt='g', ax=ax, cmap="Blues");  
-  ax.set_xlabel('Predicted labels');ax.set_ylabel('True labels'); 
-  ax.set_title('Confusion Matrix'); 
-  ax.xaxis.set_ticklabels(['negative', 'benign calcification', 'benign mass', 'malignant calcification', 'malignant mass'], rotation = 90); 
-  ax.yaxis.set_ticklabels(['negative', 'benign calcification', 'benign mass', 'malignant calcification', 'malignant mass'], rotation = 0);
-  figure = svm.get_figure()
-  figure.savefig(f'output/{base_model}/{base_model}_confusion_matrix.png', bbox_inches = 'tight') 
-  pd.DataFrame(history_finetuning.history).plot()
-  plt.savefig(f'output/{base_model}/{base_model}_finetuning.jpg')
+  confusion_matrix_plot(base_model, y_test, y_pred_bool)
+
