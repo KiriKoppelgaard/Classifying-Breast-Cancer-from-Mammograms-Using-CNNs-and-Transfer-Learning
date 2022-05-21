@@ -12,3 +12,4 @@ opencv-python
 pydot
 graphviz
 pydotplus
+codecarbon
