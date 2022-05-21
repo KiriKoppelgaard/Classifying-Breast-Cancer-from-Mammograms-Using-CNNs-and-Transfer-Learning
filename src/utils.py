@@ -105,6 +105,8 @@ def cnn(input_shape, conv_layers = [100], kernel_size = 3, dense_layers = [250])
     #flatten before fully connected network
     model.add(Flatten()) # Flattening the 2D to 1D arrays for fully connected layers
 
+    model.add(BatchNormalization()) # normalise inputs 
+
     #add dense layers
     for dense_layer in dense_layers: 
         model.add(Dense(dense_layer, activation=tf.nn.relu)) #feed-forward layer with relu activation function (following Abdelrahman et al. 2021 using leaky relu)
@@ -142,15 +144,15 @@ def transfer_learning_model(base_model):
     model=Sequential() # define model as sequential so we can add layers sequentially 
     model.add(base_model)  # add base model
 
-    model.add(GlobalAveragePooling2D()) # add a global spatial average pooling layer
+    model.add(AveragePooling2D()) # add a global spatial average pooling layer
     model.add(Dropout(0.2)) # 0.2 dropout 
     model.add(Flatten()) # flatten to prepare for fully connected layers 
-    model.add(BatchNormalization()) # batch normalisation 
+    model.add(BatchNormalization()) # normalise inputs 
 
     # add two fully connected layers with 256 nodes, batch normalisation, and relu activation
-    model.add(Dense(1024, activation='relu'))
-    model.add(Dropout(0.2))
     model.add(Dense(256, activation='relu'))
+    model.add(Dropout(0.2))
+    model.add(Dense(100, activation='relu'))
     model.add(Dropout(0.2)) # dropout 0.2
     model.add(Dense(2,activation='sigmoid')) # last layer
 
