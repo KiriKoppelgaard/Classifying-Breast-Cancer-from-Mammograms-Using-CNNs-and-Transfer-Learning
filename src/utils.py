@@ -70,11 +70,11 @@ def read_data(filename,transfer_learning=True):
         # append reshapes images 
         images.append(image)
         # append labels
-        labels.append(image_features['label_normal'].numpy()) # changed from 'label'
+        labels.append(image_features['label'].numpy()) # changed from 'label'
     
     return images, labels
 
-def cnn(input_shape, conv_layers = [100], kernel_size = 3, dense_layers = [250]):
+def cnn(input_shape, conv_layers = [100], kernel_size = 3, dense_layers = [256]):
     """
     A function that defines architecture for cnn 
 
@@ -113,11 +113,11 @@ def cnn(input_shape, conv_layers = [100], kernel_size = 3, dense_layers = [250])
         model.add(Dropout(0.2)) #randomly pruning nodes to reduce overfitting
 
     #output layer
-    model.add(Dense(2, activation='sigmoid')) #feed-forward layer with softmax
+    model.add(Dense(5, activation='softmax')) #output layer; five classes
               
     return model
 
-def transfer_learning_model(base_model): 
+def transfer_learning_model(base_model, input_shape): 
     """
     A function that defines a transfer learning model 
 
@@ -130,12 +130,12 @@ def transfer_learning_model(base_model):
     # if we do base_model.summary() we get the details of the base_model layers 
     if base_model == 'inceptionv3':
             base_model = InceptionV3(
-                input_shape=(299,299,3), # define input/image shape
+                input_shape=input_shape, # define input/image shape
                 weights='imagenet', # include pre-trained weights from training on imagenet
                 include_top=False) # leave out the top/last fully connected layer
     elif base_model == 'efficientnetv2m':
             base_model = EfficientNetV2M(
-                input_shape=(299,299,3), # define input/image shape
+                input_shape=input_shape, # define input/image shape
                 weights='imagenet', # include pre-trained weights from training on imagenet
                 include_top=False) # leave out top/last fully connected layer
     else: 
@@ -154,7 +154,7 @@ def transfer_learning_model(base_model):
     model.add(Dropout(0.2))
     model.add(Dense(100, activation='relu'))
     model.add(Dropout(0.2)) # dropout 0.2
-    model.add(Dense(2,activation='sigmoid')) # last layer
+    model.add(Dense(5,activation='softmax')) # output layer; five classes
 
     # freeze all convolutional base_model layers, so we only train the top layers (which were randomly initialized)
     for layer in base_model.layers:
