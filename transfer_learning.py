@@ -51,7 +51,9 @@ x_val, x_test, y_val, y_test = train_test_split(x_test1, y_test1, test_size=0.3,
 del X
 del y
 
+# Checking that data is the correct shape
 print('x_train.shape: ', x_train.shape, 'x_test.shape', x_test.shape, 'x_val.shape', x_val.shape)
+# define input shape for conv
 input_shape = (x_train.shape[1], x_train.shape[2], x_train.shape[3])
 
 # Making sure that the values are float so that we can get decimal points after division
@@ -68,23 +70,25 @@ print('Number of images in x_test', x_test.shape[0], ', x_test shape is', x_test
 print('Number of images in x_val', x_val.shape[0], ', x_val shape is', x_val.shape)
 print('Total number of images:', x_train.shape[0] + x_test.shape[0] + x_val.shape[0])
 
+################################################ redundant ###################################################
 #create model
-inceptionv3 = transfer_learning_model('inceptionv3') 
-efficientnetv2 = transfer_learning_model('efficientnetv2m') 
+inceptionv3 = transfer_learning_model('inceptionv3', input_shape) 
+efficientnetv2 = transfer_learning_model('efficientnetv2m', input_shape) 
 
-# Print layers 
+# Print layers for inspection
 inceptionv3.summary()
 print(len(inceptionv3.layers))
 efficientnetv2.summary()
+print(len(efficientnetv2.layers))
 
-inceptionv3_base = InceptionV3( ## if we do a summary of this, we get the layers of inceptionv3
-    include_top=False, # include the fully-connected layer at the top, as the last layer of the network
-    weights="imagenet", # include 
-    input_shape=(299, 299, 3)
-)
+# define base models for inspection
+inceptionv3_base = InceptionV3( 
+    input_shape=input_shape, # define input/image shape
+    weights="imagenet", # include pre-trained weights
+    include_top=False) # don't include top/last fully connected layer
 
 efficientnetv2_base = EfficientNetV2M(
-                input_shape=(299,299,3), # define input/image shape
+                input_shape=input_shape, # define input/image shape
                 weights='imagenet', # include pre-trained weights from training on imagenet
                 include_top=False) # don't include top/last fully connected layer
 
@@ -93,19 +97,27 @@ print("number of layers of inceptionv3_base:", len(inceptionv3_base.layers))
 efficientnetv2_base.summary()
 print("number of layers of inceptionv3_base:", len(efficientnetv2_base.layers))
 
-#counter
+
+plot_model(inceptionv3_base, f'output/{inceptionv3_base}_architecture.png', show_shapes=True)
+
+plot_model(efficientnetv2_base, f'output/{efficientnetv2_base}_architecture.png', show_shapes=True)
+
+################################################ redundant ###################################################
+
+#prepare names of base models to loop through
 base_models = ['inceptionv3'] #, 'efficientnetv2m']
 
 for base_model in base_models: 
-  #Create print
+  #load model depending on the base_model (with non-trainable base_model layers)
   if base_model == 'inceptionv3':
-    model = transfer_learning_model('inceptionv3') 
+    model = transfer_learning_model('inceptionv3', input_shape) 
   elif base_model == 'efficientnetv2m':
-    model = transfer_learning_model('efficientnetv2m') 
+    model = transfer_learning_model('efficientnetv2m', input_shape) 
   
+  # print model initialisation
   print(base_model, 'initializing')
 
-  #compile model (where base_model layers are non-trainable)
+  #compile model
   model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics = ['accuracy'])
 
   #save model parameters 
@@ -116,35 +128,33 @@ for base_model in base_models:
   # Fit initial model (train on a few epochs before unfreezing top layers of base model for fine-tuning)
   history = model.fit(x=x_train,y=y_train, epochs=5, validation_data=(x_val, y_val))
   # started 18:12 - ended: 
-  
-  from datetime import datetime
-  # datetime object containing current date and time 
-  print("now =", datetime.now())
 
   ############## IMPLEMENT THIS ##############
   # https://keras.io/guides/transfer_learning/
   # https://keras.io/api/applications/#usage-examples-for-image-classification-models
   # https://medium.com/analytics-vidhya/transfer-learning-using-inception-v3-for-image-classification-86700411251b
-  # first: train only the top layers (which were randomly initialized)
-  # i.e. freeze all convolutional InceptionV3 layers
-  # we chose to train the top 2 inception blocks, i.e. we will freeze
-  # the first 249 layers and unfreeze the rest:
-  # if base_model == 'inceptionv3':
-  #   for layer in model.layers[:249]:
-  #     layer.trainable = False
-  #   for layer in model.layers[249:]:
-  #     layer.trainable = True
 
-  # we need to recompile the model for these modifications to take effect
+  # unfreeze top 2 conv blocks so they can be fine-tuned during remaining training
+  if base_model == 'inceptionv3':
+    for layer in model.layers[:249]:
+      layer.trainable = False
+    for layer in model.layers[249:]:
+      layer.trainable = True
+  elif base_model == 'efficientnetv2m':
+    for layer in model.layers[:249]:
+      layer.trainable = False
+    for layer in model.layers[249:]:
+      layer.trainable = True
+
+  # recompile the model for modifications to take effect
   model.compile(keras.optimizers.Adam(1e-5), # very low learning rate
         loss='sparse_categorical_crossentropy', 
-        metrics = ['accuracy']) # Very low learning rate
+        metrics = ['accuracy']) 
 
-  # we train our model again (this time fine-tuning the top 2 inception blocks
-  # alongside the top Dense layers
+  # train our model, fine-tuning the top 2 conv blocks with dense layers 
   history_finetuning = model.fit(x=x_train,y=y_train, epochs=10, validation_data=(x_val, y_val))
 
-  # Evaluate model  
+  # evaluate model  
   model.evaluate(x_test, y_test)
 
   #create predictions for test set 
@@ -183,4 +193,3 @@ for base_model in base_models:
   plt.clf()
 
 
-## https://keras.io/api/applications/#usage-examples-for-image-classification-models
