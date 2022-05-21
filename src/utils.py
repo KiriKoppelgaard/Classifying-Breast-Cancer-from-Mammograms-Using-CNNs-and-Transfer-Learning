@@ -1,17 +1,16 @@
-#source: https://www.kaggle.com/code/aayushkandpal/ddsm-vgg19/notebook
- 
 import tensorflow as tf
 from tensorflow import keras
 import cv2
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Conv2D, Dropout, Flatten, MaxPooling2D, AveragePooling2D, BatchNormalization, Activation
+from tensorflow.keras.layers import Dense, Conv2D, Dropout, Flatten, MaxPooling2D, AveragePooling2D, BatchNormalization, Activation, GlobalAveragePooling2D
 from tensorflow.keras.applications import InceptionV3, EfficientNetV2M
-from sklearn.metrics import classification_report
-import pandas as pd
+# from sklearn.metrics import classification_report
+# import pandas as pd
 
 def _parse_function(example):
     """
-    A function that maps a tf record to a feature dictionary 
+    A function that maps a tf record to a feature dictionary. 
+    Source: https://www.kaggle.com/code/aayushkandpal/ddsm-vgg19/notebook 
 
     Args:
         example (TFRecord): tf record, a simple format for storing a sequence of binary records
@@ -33,6 +32,7 @@ def _parse_function(example):
 def read_data(filename,transfer_learning=True):
     """
     A function to read the tfrecods in the DDSTM data set
+    Starting point from: https://www.kaggle.com/code/aayushkandpal/ddsm-vgg19/notebook 
 
     Args:
         filename (string): full path to tfrecord
@@ -116,37 +116,48 @@ def cnn(input_shape, conv_layers = [100], kernel_size = 3, dense_layers = [250])
     return model
 
 def transfer_learning_model(base_model): 
+    """
+    A function that defines a transfer learning model 
+
+    Args:
+        base_model (str): Which base model to use. Either 'inceptionv3' or 'efficientnetv2m'
+
+    Returns:
+        _type_: _description_
+    """    
+    # if we do base_model.summary() we get the details of the base_model layers 
     if base_model == 'inceptionv3':
             base_model = InceptionV3(
                 input_shape=(299,299,3), # define input/image shape
                 weights='imagenet', # include pre-trained weights from training on imagenet
-                include_top=False) # don't include top/last fully connected layer
+                include_top=False) # leave out the top/last fully connected layer
     elif base_model == 'efficientnetv2m':
             base_model = EfficientNetV2M(
                 input_shape=(299,299,3), # define input/image shape
                 weights='imagenet', # include pre-trained weights from training on imagenet
-                include_top=False) # don't include top/last fully connected layer
+                include_top=False) # leave out top/last fully connected layer
+    else: 
+        "Error: base_model must be either 'inceptionv3' or 'efficientnetv2m"
     
     model=Sequential() # define model as sequential so we can add layers sequentially 
     model.add(base_model)  # add base model
 
+    model.add(GlobalAveragePooling2D()) # add a global spatial average pooling layer
     model.add(Dropout(0.2)) # 0.2 dropout 
     model.add(Flatten()) # flatten to prepare for fully connected layers 
     model.add(BatchNormalization()) # batch normalisation 
 
     # add two fully connected layers with 256 nodes, batch normalisation, and relu activation
-    model.add(Dense(256))
-    model.add(BatchNormalization())
-    model.add(Activation('relu')) 
+    model.add(Dense(1024, activation='relu'))
     model.add(Dropout(0.2))
-    model.add(Dense(256))
-    model.add(BatchNormalization())
-    model.add(Activation('relu'))
+    model.add(Dense(256, activation='relu'))
     model.add(Dropout(0.2)) # dropout 0.2
     model.add(Dense(2,activation='sigmoid')) # last layer
 
+    # freeze all convolutional base_model layers, so we only train the top layers (which were randomly initialized)
     for layer in base_model.layers:
         layer.trainable = False # keep weights from pre-training and only update new layers 
 
-
     return model
+
+

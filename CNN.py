@@ -109,10 +109,10 @@ for model in [model1, model2, model3]:
 
   # Visualize history
   # Plot history: Loss
-  plt.plot(np.array(history.history['val_loss'])*100, label = 'Validation Accuracy')
-  plt.plot(np.array(history.history['loss'])*100, label = 'Training Accuracy')
-  plt.title('Validation accuracy history')
-  plt.ylabel('Accuracy value (%)')
+  plt.plot(np.array(history.history['val_loss'])*100, label = 'Validation Loss')
+  plt.plot(np.array(history.history['loss'])*100, label = 'Training Loss')
+  plt.title('Validation loss history')
+  plt.ylabel('Loss value (%)')
   plt.xlabel('No. epoch')
   plt.legend(loc="upper right")
   plt.savefig(f'output/model{iteration}_loss.jpg')
