@@ -38,11 +38,11 @@ from src.utils import *
 # load data
 root_dir = os.path.abspath("")
 
-filenames=[os.path.join(root_dir,'data','training10_0','training10_0.tfrecords') #,
-          #os.path.join(root_dir,'data','training10_1','training10_1.tfrecords'), 
-          #os.path.join(root_dir,'data','training10_2','training10_2.tfrecords'),
-          #os.path.join(root_dir,'data','training10_3','training10_3.tfrecords'), 
-          #os.path.join(root_dir,'data','training10_4','training10_4.tfrecords')
+filenames=[os.path.join(root_dir,'data','training10_0','training10_0.tfrecords'),
+          os.path.join(root_dir,'data','training10_1','training10_1.tfrecords'), 
+          os.path.join(root_dir,'data','training10_2','training10_2.tfrecords'),
+          os.path.join(root_dir,'data','training10_3','training10_3.tfrecords'), 
+          os.path.join(root_dir,'data','training10_4','training10_4.tfrecords')
           ]
 
 images, labels = [], []
@@ -56,8 +56,8 @@ images = [i for image in images for i in image]
 labels = [l for label in labels for l in label]
 
 # define train and test
-X=np.array(images)[:500] # CHANGE BACK FOR FINAL
-y=np.array(labels)[:500] # CHANGE BACK FOR FINAL
+X=np.array(images) #[:500] 
+y=np.array(labels) #[:500] 
 
 # divide data into train, test and val
 x_train, x_test1, y_train, y_test1 = train_test_split(X, y, test_size=0.3, random_state=42,
@@ -93,7 +93,7 @@ print('Total number of images:', x_train.shape[0] + x_test.shape[0] + x_val.shap
 tracker = EmissionsTracker()
 
 # prepare names of base models to loop through
-base_models = ['efficientnetv2m'] # 'inceptionv3'] #,
+base_models = ['efficientnetv2m', 'inceptionv3'] 
 
 # fine-tune and evaluate base models
 for base_model in base_models: 
