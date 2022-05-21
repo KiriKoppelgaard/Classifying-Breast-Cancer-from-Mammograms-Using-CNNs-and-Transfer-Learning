@@ -70,9 +70,9 @@ print('Number of images in x_val', x_val.shape[0])
 
 
 #create models for hyperparameter comparison
-model1 = cnn(input_shape, conv_layers = [100], dense_layers = [50])
-model2 = cnn(input_shape, conv_layers = [100, 50], dense_layers = [100])
-model3 = cnn(input_shape, conv_layers = [200, 100, 50], dense_layers = [250, 100])
+model1 = cnn(input_shape, conv_layers = [100], dense_layers = [256, 100])
+model2 = cnn(input_shape, conv_layers = [49, 100], dense_layers = [256, 100])
+model3 = cnn(input_shape, conv_layers = [49, 100, 196], dense_layers = [256, 100])
 
 #counter
 iteration = 0
