@@ -130,12 +130,12 @@ def transfer_learning_model(base_model):
             base_model = InceptionV3(
                 input_shape=(299,299,3), # define input/image shape
                 weights='imagenet', # include pre-trained weights from training on imagenet
-                include_top=False) # don't include top/last fully connected layer
+                include_top=False) # leave out the top/last fully connected layer
     elif base_model == 'efficientnetv2m':
             base_model = EfficientNetV2M(
                 input_shape=(299,299,3), # define input/image shape
                 weights='imagenet', # include pre-trained weights from training on imagenet
-                include_top=False) # don't include top/last fully connected layer
+                include_top=False) # leave out top/last fully connected layer
     else: 
         "Error: base_model must be either 'inceptionv3' or 'efficientnetv2m"
     

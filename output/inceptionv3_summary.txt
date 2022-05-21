@@ -1,0 +1,31 @@
+Model: "sequential_2"
+_________________________________________________________________
+ Layer (type)                Output Shape              Param #   
+=================================================================
+ inception_v3 (Functional)   (None, 8, 8, 2048)        21802784  
+                                                                 
+ global_average_pooling2d_2   (None, 2048)             0         
+ (GlobalAveragePooling2D)                                        
+                                                                 
+ dropout_6 (Dropout)         (None, 2048)              0         
+                                                                 
+ flatten_2 (Flatten)         (None, 2048)              0         
+                                                                 
+ batch_normalization_378 (Ba  (None, 2048)             8192      
+ tchNormalization)                                               
+                                                                 
+ dense_6 (Dense)             (None, 1024)              2098176   
+                                                                 
+ dropout_7 (Dropout)         (None, 1024)              0         
+                                                                 
+ dense_7 (Dense)             (None, 256)               262400    
+                                                                 
+ dropout_8 (Dropout)         (None, 256)               0         
+                                                                 
+ dense_8 (Dense)             (None, 2)                 514       
+                                                                 
+=================================================================
+Total params: 24,172,066
+Trainable params: 2,365,186
+Non-trainable params: 21,806,880
+_________________________________________________________________
