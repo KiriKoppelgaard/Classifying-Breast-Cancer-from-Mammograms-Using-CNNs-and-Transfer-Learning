@@ -1,12 +1,13 @@
 import tensorflow as tf
 import matplotlib.pyplot as plt
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report, confusion_matrix
 import os
 import numpy as np
 from sklearn.model_selection import *
 from keras.utils.vis_utils import plot_model
 from contextlib import redirect_stdout
 import pandas as pd
+from codecarbon import EmissionsTracker
 
 #import functions
 from src.utils import *
@@ -34,8 +35,8 @@ images = [i for image in images for i in image]
 labels = [l for label in labels for l in label]
 
 # define train and test
-X=np.array(images)
-y=np.array(labels)
+X=np.array(images)[0:100]
+y=np.array(labels)[0:100]
 
 #divide data into train, test and val
 x_train, x_test1, y_train, y_test1 = train_test_split(X, y, test_size=0.3, random_state=42,
@@ -90,8 +91,24 @@ for model in [model1, model2, model3]:
     with redirect_stdout(f):
         model.summary()
 
+  #measure environmental impact
+  tracker = EmissionsTracker()
+  tracker.start()
+
   # Fit model
-  history = model.fit(x=x_train,y=y_train, epochs=10, validation_data=(x_val, y_val))
+  history = model.fit(x=x_train,y=y_train, epochs=1, validation_data=(x_val, y_val))
+
+  #print environmental impact 
+  emissions: float = tracker.stop()
+
+
+  file = os.path.join(root_dir,'output', 'co2emissions.csv')
+  if file.exists(): 
+    with open('co2emissions.csv','a') as fd:
+      fd.write(f'Emissions for model {iteration}: {emissions} kg')
+  else: 
+    with open('co2emissions.csv') as fd:
+      fd.write(f'Emissions for model {iteration}: {emissions} kg')
 
   # Evaluate model
   model.evaluate(x_test, y_test)
@@ -127,6 +144,10 @@ for model in [model1, model2, model3]:
   plt.legend(loc="upper left")
   plt.savefig(f'output/model{iteration}_accuracy.jpg')
   plt.clf()
+
+  #create confusion matrix
+  confusion_matrix = confusion_matrix(y_test, y_pred_bool, labels=["negative", "benign calcification", "benign mass", "malignant calcification", "malignant mass"])
+  confusion_matrix.to_csv(f'model{iteration}_confusion_matrix.csv')
 
   # Predict using fitted model 
   # image_index = 2
