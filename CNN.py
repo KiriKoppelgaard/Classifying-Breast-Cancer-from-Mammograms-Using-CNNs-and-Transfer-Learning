@@ -1,13 +1,15 @@
 import tensorflow as tf
 import matplotlib.pyplot as plt
 from sklearn.metrics import classification_report, confusion_matrix
-import os
+import os 
+from os.path import exists
 import numpy as np
 from sklearn.model_selection import *
 from keras.utils.vis_utils import plot_model
 from contextlib import redirect_stdout
 import pandas as pd
 from codecarbon import EmissionsTracker
+import seaborn as sns
 
 #import functions
 from src.utils import *
@@ -15,11 +17,11 @@ from src.utils import *
 # load data
 root_dir = os.path.abspath("")
 
-filenames=[os.path.join(root_dir,'data','training10_0','training10_0.tfrecords'),#'../input/ddsm-mammography/training10_0/training10_0.tfrecords',
-          os.path.join(root_dir,'data','training10_1','training10_1.tfrecords'), #'../input/ddsm-mammography/training10_1/training10_1.tfrecords',
-          os.path.join(root_dir,'data','training10_2','training10_2.tfrecords'),#'../input/ddsm-mammography/training10_2/training10_2.tfrecords',
-          os.path.join(root_dir,'data','training10_3','training10_3.tfrecords'), #'../input/ddsm-mammography/training10_3/training10_3.tfrecords',
-          os.path.join(root_dir,'data','training10_4','training10_4.tfrecords') #'../input/ddsm-mammography/training10_4/training10_4.tfrecords'
+filenames=[os.path.join(root_dir,'data','training10_0','training10_0.tfrecords')#,#'../input/ddsm-mammography/training10_0/training10_0.tfrecords',
+          #os.path.join(root_dir,'data','training10_1','training10_1.tfrecords'), #'../input/ddsm-mammography/training10_1/training10_1.tfrecords',
+          #os.path.join(root_dir,'data','training10_2','training10_2.tfrecords'),#'../input/ddsm-mammography/training10_2/training10_2.tfrecords',
+          #os.path.join(root_dir,'data','training10_3','training10_3.tfrecords'), #'../input/ddsm-mammography/training10_3/training10_3.tfrecords',
+          #os.path.join(root_dir,'data','training10_4','training10_4.tfrecords') #'../input/ddsm-mammography/training10_4/training10_4.tfrecords'
           ]
 
 # empty lists
@@ -35,8 +37,8 @@ images = [i for image in images for i in image]
 labels = [l for label in labels for l in label]
 
 # define train and test
-X=np.array(images)[0:100]
-y=np.array(labels)[0:100]
+X=np.array(images)[0:500]
+y=np.array(labels)[0:500]
 
 #divide data into train, test and val
 x_train, x_test1, y_train, y_test1 = train_test_split(X, y, test_size=0.3, random_state=42,
@@ -69,46 +71,48 @@ print('Number of images in x_train', x_train.shape[0])
 print('Number of images in x_test', x_test.shape[0])
 print('Number of images in x_val', x_val.shape[0])
 
+#define emissionstracker
+tracker = EmissionsTracker()
 
 #create models for hyperparameter comparison
-model1 = cnn(input_shape, conv_layers = [100], dense_layers = [256, 100])
-model2 = cnn(input_shape, conv_layers = [49, 100], dense_layers = [256, 100])
-model3 = cnn(input_shape, conv_layers = [49, 100, 196], dense_layers = [256, 100])
 
-#counter
-iteration = 0
-
-for model in [model1, model2, model3]:
+for model_name in ['cnn_small', 'cnn_medium', 'cnn_large']:
   #Create print
-  iteration += 1
-  print('Model', iteration, 'initializing')
+  print(model_name, 'initializing')
+
+  #define model
+  if model_name == 'cnn_small':
+    model = cnn(input_shape, conv_layers = [100], dense_layers = [256, 100])
+  elif model_name == 'cnn_medium':
+    model = cnn(input_shape, conv_layers = [49, 100], dense_layers = [256, 100])
+  elif model_name == 'cnn_large':
+    model = cnn(input_shape, conv_layers = [49, 100, 196], dense_layers = [256, 100])
 
   #compile model
   model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics = ['accuracy'])
 
   #save model parameters 
-  with open(f'output/model{iteration}_summary.txt', 'w') as f:
+  with open(f'output/{model_name}/{model_name}_summary.txt', 'w') as f:
     with redirect_stdout(f):
         model.summary()
 
   #measure environmental impact
-  tracker = EmissionsTracker()
   tracker.start()
 
   # Fit model
   history = model.fit(x=x_train,y=y_train, epochs=1, validation_data=(x_val, y_val))
 
-  #print environmental impact 
+  #save environmental impact 
   emissions: float = tracker.stop()
 
+  path = os.path.join(root_dir,'output', 'co2emissions.csv')
 
-  file = os.path.join(root_dir,'output', 'co2emissions.csv')
-  if file.exists(): 
-    with open('co2emissions.csv','a') as fd:
-      fd.write(f'Emissions for model {iteration}: {emissions} kg')
+  if exists(path): 
+    with open(path,'a') as fd:
+      fd.write(f'Emissions for {model_name}: {emissions} kg;')
   else: 
-    with open('co2emissions.csv') as fd:
-      fd.write(f'Emissions for model {iteration}: {emissions} kg')
+    with open(path, 'w') as fd:
+      fd.write(f'Emissions for {model_name}: {emissions} kg;')
 
   # Evaluate model
   model.evaluate(x_test, y_test)
@@ -119,10 +123,10 @@ for model in [model1, model2, model3]:
 
   #save classification report
   clsf_report = pd.DataFrame(classification_report(y_test, y_pred_bool, output_dict=True)).transpose()
-  clsf_report.to_csv(f'output/model{iteration}_clsf_report.csv', index= True)
+  clsf_report.to_csv(f'output/{model_name}/{model_name}_clsf_report.csv', index= True)
 
   #plot model architecture
-  plot_model(model, f'output/model{iteration}_architecture.png', show_shapes=True)
+  plot_model(model, f'output/{model_name}/{model_name}_architecture.png', show_shapes=True)
 
   # Visualize history
   # Plot history: Loss
@@ -132,7 +136,7 @@ for model in [model1, model2, model3]:
   plt.ylabel('Loss value (%)')
   plt.xlabel('No. epoch')
   plt.legend(loc="upper right")
-  plt.savefig(f'output/model{iteration}_loss.jpg')
+  plt.savefig(f'output/{model_name}/{model_name}_loss.jpg')
   plt.clf()
 
   # Plot history: Accuracy
@@ -142,12 +146,20 @@ for model in [model1, model2, model3]:
   plt.ylabel('Accuracy value (%)')
   plt.xlabel('No. epoch')
   plt.legend(loc="upper left")
-  plt.savefig(f'output/model{iteration}_accuracy.jpg')
+  plt.savefig(f'output/{model_name}/{model_name}_accuracy.jpg')
   plt.clf()
 
   #create confusion matrix
-  confusion_matrix = confusion_matrix(y_test, y_pred_bool, labels=["negative", "benign calcification", "benign mass", "malignant calcification", "malignant mass"])
-  confusion_matrix.to_csv(f'model{iteration}_confusion_matrix.csv')
+  cm = pd.DataFrame(confusion_matrix(y_test, y_pred_bool))
+  ax= plt.subplot()
+  svm = sns.heatmap(cm, annot=True, fmt='g', ax=ax, cmap="Blues");  #annot=True to annotate cells, ftm='g' to disable scientific notation
+  # labels, title and ticks
+  ax.set_xlabel('Predicted labels');ax.set_ylabel('True labels'); 
+  ax.set_title('Confusion Matrix'); 
+  ax.xaxis.set_ticklabels(['negative', 'benign calcification', 'benign mass', 'malignant calcification', 'malignant mass'], rotation = 90); 
+  ax.yaxis.set_ticklabels(['negative', 'benign calcification', 'benign mass', 'malignant calcification', 'malignant mass'], rotation = 0);
+  figure = svm.get_figure()
+  figure.savefig(f'output/{model_name}/{model_name}_confusion_matrix.png', bbox_inches = 'tight') 
 
   # Predict using fitted model 
   # image_index = 2

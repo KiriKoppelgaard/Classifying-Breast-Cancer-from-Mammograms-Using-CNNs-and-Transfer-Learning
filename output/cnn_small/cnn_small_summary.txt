@@ -1,0 +1,29 @@
+Model: "sequential_7"
+_________________________________________________________________
+ Layer (type)                Output Shape              Param #   
+=================================================================
+ conv2d_13 (Conv2D)          (None, 297, 297, 100)     1000      
+                                                                 
+ average_pooling2d_7 (Averag  (None, 148, 148, 100)    0         
+ ePooling2D)                                                     
+                                                                 
+ flatten_7 (Flatten)         (None, 2190400)           0         
+                                                                 
+ batch_normalization_7 (Batc  (None, 2190400)          8761600   
+ hNormalization)                                                 
+                                                                 
+ dense_21 (Dense)            (None, 256)               560742656 
+                                                                 
+ dropout_14 (Dropout)        (None, 256)               0         
+                                                                 
+ dense_22 (Dense)            (None, 100)               25700     
+                                                                 
+ dropout_15 (Dropout)        (None, 100)               0         
+                                                                 
+ dense_23 (Dense)            (None, 5)                 505       
+                                                                 
+=================================================================
+Total params: 569,531,461
+Trainable params: 565,150,661
+Non-trainable params: 4,380,800
+_________________________________________________________________
