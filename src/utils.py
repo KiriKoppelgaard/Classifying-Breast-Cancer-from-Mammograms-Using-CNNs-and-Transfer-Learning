@@ -5,7 +5,17 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Conv2D, Dropout, Flatten, MaxPooling2D, AveragePooling2D, BatchNormalization, Activation, GlobalAveragePooling2D
 from tensorflow.keras.applications import InceptionV3, EfficientNetV2M
 # from sklearn.metrics import classification_report
-# import pandas as pd
+
+
+
+from tensorflow.keras.models import Model
+
+import matplotlib.pyplot as plt
+import numpy as np
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+import pandas as pd
+
 
 def _parse_function(example):
     """
@@ -117,7 +127,7 @@ def cnn(input_shape, conv_layers = [100], kernel_size = 3, dense_layers = [256])
               
     return model
 
-def transfer_learning_model(base_model, input_shape): 
+def old_transfer_learning_model(base_model, input_shape): 
     """
     A function that defines a transfer learning model 
 
@@ -162,4 +172,84 @@ def transfer_learning_model(base_model, input_shape):
 
     return model
 
+def transfer_learning_model(base_model, input_shape): 
+    """
+    A function that defines a transfer learning model 
 
+    Args:
+        base_model (str): Which base model to use. Either 'inceptionv3' or 'efficientnetv2m'
+
+    Returns:
+        keras.engine.functional.Functional object: transfer learning model with additional layers to fit this classification task
+    """    
+    # if we do base_model.summary() we get the details of the base_model layers 
+    if base_model == 'inceptionv3':
+            base_model = InceptionV3(
+                input_shape=input_shape, # define input/image shape
+                weights='imagenet', # include pre-trained weights from training on imagenet
+                include_top=False) # leave out the top/last fully connected layer
+    elif base_model == 'efficientnetv2m':
+            base_model = EfficientNetV2M(
+                input_shape=input_shape, # define input/image shape
+                weights='imagenet', # include pre-trained weights from training on imagenet
+                include_top=False) # leave out top/last fully connected layer
+    else: 
+        "Error: base_model must be either 'inceptionv3' or 'efficientnetv2m"
+    
+    # freeze all convolutional base_model layers, so we only train the top layers (which were randomly initialized)
+    for layer in base_model.layers:
+        layer.trainable = False # keep weights from pre-training and only update new layers 
+
+    # Add layers to base model
+    x = base_model.output
+    x = AveragePooling2D()(x) # add a global spatial average pooling layer
+    x = Dropout(0.2)(x)
+    x = Flatten()(x) # flatten to prepare for fully connected layers 
+    x = BatchNormalization()(x) # normalise 
+    x = Dense(256, activation='relu')(x) # add fully connected layer with 256 nodes and relu activation
+    x = Dropout(0.2)(x)
+    x = Dense(100, activation='relu')(x) # add fully connected layer with 100 nodes and relu activation
+    x = Dropout(0.2)(x) # dropout 0.2
+    predictions = Dense(5,activation='softmax')(x) # output layer, five classes and softmax activation
+
+    # put model together
+    model = Model(inputs=base_model.input, outputs=predictions)
+    
+    return model
+
+def history_plot(base_model, history_object, metric, frozen_layers = False):
+    if metric == 'loss':
+      plt.plot(np.array(history_object.history['val_loss'])*100, label = 'Validation Loss')
+      plt.plot(np.array(history_object.history['loss'])*100, label = 'Training Loss')
+      plt.title('Validation loss history')
+      plt.ylabel('Loss value (%)')
+      plt.xlabel('No. epoch')
+      plt.legend(loc="upper right")
+      if frozen_layers:
+        plt.savefig(f'output/{base_model}/{base_model}_loss_w_frozen_layers.jpg')
+      else:
+        plt.savefig(f'output/{base_model}/{base_model}_loss.jpg')
+      plt.clf()
+    elif metric == 'accuracy':
+      plt.plot(np.array(history_object.history['val_accuracy'])*100, label = 'Validation Accuracy')
+      plt.plot(np.array(history_object.history['accuracy'])*100, label = 'Training Accuracy')
+      plt.title('Validation accuracy history')
+      plt.ylabel('Accuracy value (%)')
+      plt.xlabel('No. epoch')
+      plt.legend(loc="upper left")
+      if frozen_layers:
+        plt.savefig(f'output/{base_model}/{base_model}_accuracy_w_frozen_layers.jpg')
+      else:
+        plt.savefig(f'output/{base_model}/{base_model}_accuracy.jpg')
+      plt.clf()
+
+def confusion_matrix_plot(base_model, y_test, y_pred_bool):
+    cm = pd.DataFrame(confusion_matrix(y_test, y_pred_bool))
+    ax= plt.subplot()
+    svm = sns.heatmap(cm, annot=True, fmt='g', ax=ax, cmap="Blues");  
+    ax.set_xlabel('Predicted labels');ax.set_ylabel('True labels'); 
+    ax.set_title('Confusion Matrix'); 
+    ax.xaxis.set_ticklabels(['negative', 'benign calcification', 'benign mass', 'malignant calcification', 'malignant mass'], rotation = 90); 
+    ax.yaxis.set_ticklabels(['negative', 'benign calcification', 'benign mass', 'malignant calcification', 'malignant mass'], rotation = 0);
+    figure = svm.get_figure()
+    figure.savefig(f'output/{base_model}/{base_model}_confusion_matrix.png', bbox_inches = 'tight') 
