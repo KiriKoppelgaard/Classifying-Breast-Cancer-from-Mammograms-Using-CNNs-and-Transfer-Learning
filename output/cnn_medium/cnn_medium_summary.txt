@@ -1,31 +1,31 @@
-Model: "sequential_8"
+Model: "sequential_1"
 _________________________________________________________________
  Layer (type)                Output Shape              Param #   
 =================================================================
- conv2d_14 (Conv2D)          (None, 297, 297, 49)      490       
+ conv2d_1 (Conv2D)           (None, 297, 297, 49)      490       
                                                                  
- max_pooling2d_6 (MaxPooling  (None, 148, 148, 49)     0         
- 2D)                                                             
+ max_pooling2d (MaxPooling2D  (None, 148, 148, 49)     0         
+ )                                                               
                                                                  
- conv2d_15 (Conv2D)          (None, 146, 146, 100)     44200     
+ conv2d_2 (Conv2D)           (None, 146, 146, 100)     44200     
                                                                  
- average_pooling2d_8 (Averag  (None, 73, 73, 100)      0         
+ average_pooling2d_1 (Averag  (None, 73, 73, 100)      0         
  ePooling2D)                                                     
                                                                  
- flatten_8 (Flatten)         (None, 532900)            0         
+ flatten_1 (Flatten)         (None, 532900)            0         
                                                                  
- batch_normalization_8 (Batc  (None, 532900)           2131600   
+ batch_normalization_1 (Batc  (None, 532900)           2131600   
  hNormalization)                                                 
                                                                  
- dense_24 (Dense)            (None, 256)               136422656 
+ dense_3 (Dense)             (None, 256)               136422656 
                                                                  
- dropout_16 (Dropout)        (None, 256)               0         
+ dropout_2 (Dropout)         (None, 256)               0         
                                                                  
- dense_25 (Dense)            (None, 100)               25700     
+ dense_4 (Dense)             (None, 100)               25700     
                                                                  
- dropout_17 (Dropout)        (None, 100)               0         
+ dropout_3 (Dropout)         (None, 100)               0         
                                                                  
- dense_26 (Dense)            (None, 5)                 505       
+ dense_5 (Dense)             (None, 5)                 505       
                                                                  
 =================================================================
 Total params: 138,625,151
