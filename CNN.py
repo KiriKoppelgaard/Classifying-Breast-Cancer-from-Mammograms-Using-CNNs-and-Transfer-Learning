@@ -103,7 +103,7 @@ for model_name in ['cnn_small', 'cnn_medium', 'cnn_large']:
 
 
   # Fit model
-  history = model.fit(x=x_train,y=y_train, epochs=1, validation_data=(x_val, y_val))
+  history = model.fit(x=x_train,y=y_train, epochs=500, validation_data=(x_val, y_val))
 
   #save environmental impact 
   emissions: float = tracker.stop()
