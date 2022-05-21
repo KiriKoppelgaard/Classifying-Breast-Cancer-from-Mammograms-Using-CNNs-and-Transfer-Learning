@@ -14,6 +14,7 @@ Transfer learning and fine-tuning code sources
 - https://keras.io/api/applications/#usage-examples-for-image-classification-models
 - https://keras.io/api/applications/#inceptionv3 (freezing top blocks + low learning rate)
 - https://stackabuse.com/image-recognition-in-python-with-tensorflow-and-keras/
+
 '''
 
 import tensorflow as tf
@@ -29,6 +30,7 @@ from contextlib import redirect_stdout
 import pandas as pd
 from codecarbon import EmissionsTracker
 import seaborn as sns
+from datetime import datetime
 
 # import functions
 from src.utils import *
@@ -112,8 +114,9 @@ for base_model in base_models:
     with redirect_stdout(f):
         model.summary()
 
-  #measure environmental impact
+  #measure environmental impact and time
   tracker.start()
+  start_time = datetime.now()
 
   # fit initial model (train on a few epochs before unfreezing two top blocks of base model for fine-tuning)
   history = model.fit(x=x_train,y=y_train, epochs=1, validation_data=(x_val, y_val))
@@ -144,13 +147,14 @@ for base_model in base_models:
 
   #save environmental impact 
   emissions: float = tracker.stop()
+  end_time = datetime.now()
   path = os.path.join(root_dir,'output', 'co2emissions.csv')
   if exists(path): 
     with open(path,'a') as fd:
-      fd.write(f'Emissions for {base_model}: {emissions} kg;')
+      fd.write(f'Emissions for {base_model}: {emissions} kg,  Duration: {end_time - start_time}; ')
   else: 
     with open(path, 'w') as fd:
-      fd.write(f'Emissions for {base_model}: {emissions} kg;')
+      fd.write(f'Emissions for {base_model}: {emissions} kg,  Duration: {end_time - start_time}; ')
 
   # evaluate model  
   model.evaluate(x_test, y_test)
@@ -196,9 +200,5 @@ for base_model in base_models:
   ax.yaxis.set_ticklabels(['negative', 'benign calcification', 'benign mass', 'malignant calcification', 'malignant mass'], rotation = 0);
   figure = svm.get_figure()
   figure.savefig(f'output/{base_model}/{base_model}_confusion_matrix.png', bbox_inches = 'tight') 
-
-import pandas as pd
-import matplotlib.pyplot as plt
-
-pd.DataFrame(history_finetuning.history).plot()
-plt.show()
+  pd.DataFrame(history_finetuning.history).plot()
+  plt.savefig(f'output/{base_model}/{base_model}_finetuning.jpg')

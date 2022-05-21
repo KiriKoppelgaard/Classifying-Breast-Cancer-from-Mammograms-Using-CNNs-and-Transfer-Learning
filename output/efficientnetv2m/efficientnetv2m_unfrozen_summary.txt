@@ -1,0 +1,32 @@
+Model: "sequential"
+_________________________________________________________________
+ Layer (type)                Output Shape              Param #   
+=================================================================
+ efficientnetv2-m (Functiona  (None, 10, 10, 1280)     53150388  
+ l)                                                              
+                                                                 
+ average_pooling2d (AverageP  (None, 5, 5, 1280)       0         
+ ooling2D)                                                       
+                                                                 
+ dropout (Dropout)           (None, 5, 5, 1280)        0         
+                                                                 
+ flatten (Flatten)           (None, 32000)             0         
+                                                                 
+ batch_normalization (BatchN  (None, 32000)            128000    
+ ormalization)                                                   
+                                                                 
+ dense (Dense)               (None, 256)               8192256   
+                                                                 
+ dropout_1 (Dropout)         (None, 256)               0         
+                                                                 
+ dense_1 (Dense)             (None, 100)               25700     
+                                                                 
+ dropout_2 (Dropout)         (None, 100)               0         
+                                                                 
+ dense_2 (Dense)             (None, 5)                 505       
+                                                                 
+=================================================================
+Total params: 61,496,849
+Trainable params: 0
+Non-trainable params: 61,496,849
+_________________________________________________________________
