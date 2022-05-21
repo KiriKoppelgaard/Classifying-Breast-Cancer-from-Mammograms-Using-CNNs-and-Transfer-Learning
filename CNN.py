@@ -18,11 +18,11 @@ from src.utils import *
 # load data
 root_dir = os.path.abspath("")
 
-filenames=[os.path.join(root_dir,'data','training10_0','training10_0.tfrecords')#,#'../input/ddsm-mammography/training10_0/training10_0.tfrecords',
-          #os.path.join(root_dir,'data','training10_1','training10_1.tfrecords'), #'../input/ddsm-mammography/training10_1/training10_1.tfrecords',
-          #os.path.join(root_dir,'data','training10_2','training10_2.tfrecords'),#'../input/ddsm-mammography/training10_2/training10_2.tfrecords',
-          #os.path.join(root_dir,'data','training10_3','training10_3.tfrecords'), #'../input/ddsm-mammography/training10_3/training10_3.tfrecords',
-          #os.path.join(root_dir,'data','training10_4','training10_4.tfrecords') #'../input/ddsm-mammography/training10_4/training10_4.tfrecords'
+filenames=[os.path.join(root_dir,'data','training10_0','training10_0.tfrecords'),
+          os.path.join(root_dir,'data','training10_1','training10_1.tfrecords'), 
+          os.path.join(root_dir,'data','training10_2','training10_2.tfrecords'),
+          os.path.join(root_dir,'data','training10_3','training10_3.tfrecords'),
+          os.path.join(root_dir,'data','training10_4','training10_4.tfrecords')
           ]
 
 # empty lists
@@ -38,8 +38,8 @@ images = [i for image in images for i in image]
 labels = [l for label in labels for l in label]
 
 # define train and test
-X=np.array(images)[0:500]
-y=np.array(labels)[0:500]
+X=np.array(images)
+y=np.array(labels)
 
 #divide data into train, test and val
 x_train, x_test1, y_train, y_test1 = train_test_split(X, y, test_size=0.3, random_state=42,
