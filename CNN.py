@@ -10,6 +10,7 @@ from contextlib import redirect_stdout
 import pandas as pd
 from codecarbon import EmissionsTracker
 import seaborn as sns
+from datetime import datetime
 
 #import functions
 from src.utils import *
@@ -96,23 +97,25 @@ for model_name in ['cnn_small', 'cnn_medium', 'cnn_large']:
     with redirect_stdout(f):
         model.summary()
 
-  #measure environmental impact
+  #measure environmental impact and time
   tracker.start()
+  start_time = datetime.now()
+
 
   # Fit model
   history = model.fit(x=x_train,y=y_train, epochs=1, validation_data=(x_val, y_val))
 
   #save environmental impact 
   emissions: float = tracker.stop()
-
+  end_time = datetime.now()
   path = os.path.join(root_dir,'output', 'co2emissions.csv')
 
   if exists(path): 
     with open(path,'a') as fd:
-      fd.write(f'Emissions for {model_name}: {emissions} kg;')
+      fd.write(f'Emissions for {model_name}: {emissions} kg,  Duration: {end_time - start_time}; ')
   else: 
     with open(path, 'w') as fd:
-      fd.write(f'Emissions for {model_name}: {emissions} kg;')
+      fd.write(f'Emissions for {model_name}: {emissions} kg,  Duration: {end_time - start_time}; ')
 
   # Evaluate model
   model.evaluate(x_test, y_test)
