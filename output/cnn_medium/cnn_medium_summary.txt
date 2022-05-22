@@ -1,0 +1,34 @@
+Model: "sequential_2"
+_________________________________________________________________
+ Layer (type)                Output Shape              Param #   
+=================================================================
+ conv2d_2 (Conv2D)           (None, 297, 297, 49)      490       
+                                                                 
+ max_pooling2d (MaxPooling2D  (None, 148, 148, 49)     0         
+ )                                                               
+                                                                 
+ conv2d_3 (Conv2D)           (None, 146, 146, 100)     44200     
+                                                                 
+ average_pooling2d_2 (Averag  (None, 73, 73, 100)      0         
+ ePooling2D)                                                     
+                                                                 
+ flatten_2 (Flatten)         (None, 532900)            0         
+                                                                 
+ batch_normalization_2 (Batc  (None, 532900)           2131600   
+ hNormalization)                                                 
+                                                                 
+ dense_6 (Dense)             (None, 256)               136422656 
+                                                                 
+ dropout_4 (Dropout)         (None, 256)               0         
+                                                                 
+ dense_7 (Dense)             (None, 100)               25700     
+                                                                 
+ dropout_5 (Dropout)         (None, 100)               0         
+                                                                 
+ dense_8 (Dense)             (None, 5)                 505       
+                                                                 
+=================================================================
+Total params: 138,625,151
+Trainable params: 137,559,351
+Non-trainable params: 1,065,800
+_________________________________________________________________
