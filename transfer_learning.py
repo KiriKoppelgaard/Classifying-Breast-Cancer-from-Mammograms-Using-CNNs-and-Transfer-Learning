@@ -22,10 +22,10 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import classification_report, confusion_matrix
 import os
 from os.path import exists
-
 import numpy as np
 from sklearn.model_selection import *
 from keras.utils.vis_utils import plot_model
+from keras.callbacks import EarlyStopping
 from contextlib import redirect_stdout
 import pandas as pd
 from codecarbon import EmissionsTracker
@@ -56,8 +56,8 @@ images = [i for image in images for i in image]
 labels = [l for label in labels for l in label]
 
 # define train and test
-X=np.array(images)
-y=np.array(labels)
+X=np.array(images)[:500]
+y=np.array(labels)[:500]
 
 # divide data into train, test and val
 x_train, x_test1, y_train, y_test1 = train_test_split(X, y, test_size=0.3, random_state=42,
@@ -92,8 +92,11 @@ print('Total number of images:', x_train.shape[0] + x_test.shape[0] + x_val.shap
 # define emissions tracker
 tracker = EmissionsTracker()
 
+# define callback (for early stopping)
+callback = EarlyStopping(monitor='val_loss', patience=3)
+
 # prepare names of base models to loop through
-base_models = ['efficientnetv2m', 'inceptionv3']
+base_models = ['efficientnetv2m'] # 'inceptionv3'] 
 
 # fine-tune and evaluate base models
 for base_model in base_models: 
@@ -119,7 +122,7 @@ for base_model in base_models:
   start_time = datetime.now()
 
   # fit initial model (train on a few epochs before unfreezing two top blocks of base model for fine-tuning)
-  history = model.fit(x=x_train,y=y_train, epochs=1, validation_data=(x_val, y_val))
+  history = model.fit(x=x_train,y=y_train, epochs=2, validation_data=(x_val, y_val))
 
   # unfreeze two top blocks og base model, so they can be fine-tuned
   if base_model == 'inceptionv3':
@@ -143,7 +146,7 @@ for base_model in base_models:
         model.summary()   
 
   # fine-tune model (training two top blocks of base model + fully-connected layers) 
-  history_finetuning = model.fit(x=x_train,y=y_train, epochs=1, validation_data=(x_val, y_val))
+  history_finetuning = model.fit(x=x_train,y=y_train, epochs=2, validation_data=(x_val, y_val), callbacks=[callback])
 
   #save environmental impact 
   emissions: float = tracker.stop()
@@ -170,7 +173,27 @@ for base_model in base_models:
   # plot model architecture
   plot_model(model, f'output/{base_model}/{base_model}_architecture.png', show_shapes=True)
 
-  # plot history: loss
+# plot frozen history: loss
+  plt.plot(np.array(history.history['val_loss'])*100, label = 'Validation Loss')
+  plt.plot(np.array(history.history['loss'])*100, label = 'Training Loss')
+  plt.title('Validation loss history')
+  plt.ylabel('Loss value (%)')
+  plt.xlabel('No. epoch')
+  plt.legend(loc="upper right")
+  plt.savefig(f'output/{base_model}/{base_model}_frozen_loss.jpg')
+  plt.clf()
+
+  # plot frozen history: accuracy
+  plt.plot(np.array(history.history['val_accuracy'])*100, label = 'Validation Accuracy')
+  plt.plot(np.array(history.history['accuracy'])*100, label = 'Training Accuracy')
+  plt.title('Validation accuracy history')
+  plt.ylabel('Accuracy value (%)')
+  plt.xlabel('No. epoch')
+  plt.legend(loc="upper left")
+  plt.savefig(f'output/{base_model}/{base_model}_frozen_accuracy.jpg')
+  plt.clf()
+
+  # plot finetuning history: loss
   plt.plot(np.array(history_finetuning.history['val_loss'])*100, label = 'Validation Loss')
   plt.plot(np.array(history_finetuning.history['loss'])*100, label = 'Training Loss')
   plt.title('Validation loss history')
@@ -180,7 +203,7 @@ for base_model in base_models:
   plt.savefig(f'output/{base_model}/{base_model}_loss.jpg')
   plt.clf()
 
-  # plot history: accuracy
+  # plot finetuning history: accuracy
   plt.plot(np.array(history_finetuning.history['val_accuracy'])*100, label = 'Validation Accuracy')
   plt.plot(np.array(history_finetuning.history['accuracy'])*100, label = 'Training Accuracy')
   plt.title('Validation accuracy history')

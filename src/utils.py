@@ -73,6 +73,7 @@ def read_data(filename,transfer_learning=True):
     
     return images, labels
 
+
 def cnn(input_shape, conv_layers = [100], kernel_size = 3, dense_layers = [256]):
     """
     A function that defines architecture for cnn 
@@ -116,6 +117,54 @@ def cnn(input_shape, conv_layers = [100], kernel_size = 3, dense_layers = [256])
               
     return model
 
+
+def transfer_learning_model(base_model, input_shape): 
+    """
+    A function that defines a transfer learning model 
+    starting point from: https://keras.io/api/applications/#inceptionv3
+
+    Args:
+        base_model (str): Which base model to use. Either 'inceptionv3' or 'efficientnetv2m'
+
+    Returns:
+        model: transfer learning model with frozen base_model layers 
+    """    
+    # if we do base_model.summary() we get the details of the base_model layers 
+    if base_model == 'inceptionv3':
+            base_model = InceptionV3(
+                input_shape=input_shape, # define input/image shape
+                weights='imagenet', # include pre-trained weights from training on imagenet
+                include_top=False) # leave out the top/last fully connected layer
+    elif base_model == 'efficientnetv2m':
+            base_model = EfficientNetV2M(
+                input_shape=input_shape, # define input/image shape
+                weights='imagenet', # include pre-trained weights from training on imagenet
+                include_top=False) # leave out top/last fully connected layer
+    else: 
+        "Error: base_model must be either 'inceptionv3' or 'efficientnetv2m"
+    
+    x = base_model.output
+    x = AveragePooling2D()(x)  # average pooling layer
+    x = Dropout(0.2)(x) # dropout
+    x = Flatten()(x) # flatten to prepare for fully-connected layers
+    x = BatchNormalization()(x) # batch normalisation
+    x = Dense(256, activation='relu')(x) # fully-connected layer
+    x = Dropout(0.2)(x) # dropout
+    x = Dense(100, activation='relu')(x) # fully-connected layer
+    x = Dropout(0.2)(x) # dropout
+    predictions = Dense(5, activation='softmax')(x) # output layer; five classes
+
+    # collect model
+    model = Model(inputs=base_model.input, outputs=predictions)
+
+    # freeze all layers in base_model so we only train only the top layers (randomly initialized)
+    for layer in base_model.layers:
+        layer.trainable = False
+    
+
+    return model
+
+
 def old_transfer_learning_model(base_model, input_shape): 
     """
     A function that defines a transfer learning model 
@@ -158,50 +207,5 @@ def old_transfer_learning_model(base_model, input_shape):
     # freeze all convolutional base_model layers, so we only train the top layers (which were randomly initialized)
     for layer in base_model.layers:
         layer.trainable = False # keep weights from pre-training and only update new layers 
-
-    return model
-
-def transfer_learning_model(base_model, input_shape): 
-    """
-    A function that defines a transfer learning model 
-
-    Args:
-        base_model (str): Which base model to use. Either 'inceptionv3' or 'efficientnetv2m'
-
-    Returns:
-        _type_: _description_
-    """    
-    # if we do base_model.summary() we get the details of the base_model layers 
-    if base_model == 'inceptionv3':
-            base_model = InceptionV3(
-                input_shape=input_shape, # define input/image shape
-                weights='imagenet', # include pre-trained weights from training on imagenet
-                include_top=False) # leave out the top/last fully connected layer
-    elif base_model == 'efficientnetv2m':
-            base_model = EfficientNetV2M(
-                input_shape=input_shape, # define input/image shape
-                weights='imagenet', # include pre-trained weights from training on imagenet
-                include_top=False) # leave out top/last fully connected layer
-    else: 
-        "Error: base_model must be either 'inceptionv3' or 'efficientnetv2m"
-    
-    x = base_model.output
-    x = AveragePooling2D()(x)  # average pooling layer
-    x = Dropout(0.2)(x) # dropout
-    x = Flatten()(x) # flatten to prepare for fully-connected layers
-    x = BatchNormalization()(x) # batch normalisation
-    x = Dense(256, activation='relu')(x) # fully-connected layer
-    x = Dropout(0.2)(x) # dropout
-    x = Dense(100, activation='relu')(x) # fully-connected layer
-    x = Dropout(0.2)(x) # dropout
-    predictions = Dense(5, activation='softmax')(x) # output layer; five classes
-
-    # collect model
-    model = Model(inputs=base_model.input, outputs=predictions)
-
-    # freeze all layers in base_model so we only train only the top layers (randomly initialized)
-    for layer in base_model.layers:
-        layer.trainable = False
-    
 
     return model
