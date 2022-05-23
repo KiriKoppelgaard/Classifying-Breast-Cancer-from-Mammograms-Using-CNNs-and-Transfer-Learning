@@ -89,14 +89,14 @@ for model_name in ['cnn_small', 'cnn_medium', 'cnn_large']:
 
   #define model
   if model_name == 'cnn_small':
-    model = cnn(input_shape, conv_layers = [9], dense_layers = [16, 9])
+    model = cnn(input_shape, conv_layers = [16], dense_layers = [100, 64])
   elif model_name == 'cnn_medium':
-    model = cnn(input_shape, conv_layers = [9, 16], dense_layers = [16, 9])
+    model = cnn(input_shape, conv_layers = [16, 25], dense_layers = [100, 64])
   elif model_name == 'cnn_large':
-    model = cnn(input_shape, conv_layers = [9, 16, 25], dense_layers = [16, 9])
+    model = cnn(input_shape, conv_layers = [16, 25, 36], dense_layers = [100, 64])
 
   #create early stopping object 
-  callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10)
+  #callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10)
 
   #compile model
   model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics = ['accuracy'])
@@ -111,7 +111,7 @@ for model_name in ['cnn_small', 'cnn_medium', 'cnn_large']:
   start_time = datetime.now()
 
   # Fit model
-  history = model.fit(x=x_train,y=y_train, epochs=100, validation_data=(x_val, y_val), callbacks=[callback])
+  history = model.fit(x=x_train,y=y_train, epochs=200, validation_data=(x_val, y_val)) #, callbacks=[callback])
 
   #save environmental impact 
   emissions: float = tracker.stop()
@@ -140,10 +140,10 @@ for model_name in ['cnn_small', 'cnn_medium', 'cnn_large']:
   
   # Visualize history
   # Plot history: Loss
-  plt.plot(np.array(history.history['val_loss'])*100, label = 'Validation Loss')
-  plt.plot(np.array(history.history['loss'])*100, label = 'Training Loss')
+  plt.plot(np.array(history.history['val_loss']), label = 'Validation Loss')
+  plt.plot(np.array(history.history['loss']), label = 'Training Loss')
   plt.title('Validation loss history')
-  plt.ylabel('Loss value (%)')
+  plt.ylabel('Loss value')
   plt.xlabel('No. epoch')
   plt.legend(loc="upper right")
   plt.savefig(f'output/{model_name}/{model_name}_loss.jpg')
@@ -172,7 +172,7 @@ for model_name in ['cnn_small', 'cnn_medium', 'cnn_large']:
   figure.savefig(f'output/{model_name}/{model_name}_confusion_matrix.png', bbox_inches = 'tight') 
 
   #plot model architecture
-  plot_model(model, f'output/{model_name}/{model_name}_architecture.png', show_shapes=True)
+  #plot_model(model, f'output/{model_name}/{model_name}_architecture.png', show_shapes=True)
 
   # Predict using fitted model 
   # image_index = 2

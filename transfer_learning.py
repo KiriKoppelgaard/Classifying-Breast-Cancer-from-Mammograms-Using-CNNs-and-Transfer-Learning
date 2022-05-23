@@ -114,7 +114,7 @@ for base_model in base_models:
   tracker = EmissionsTracker()
 
   # define callback (for early stopping)
-  callback = EarlyStopping(monitor='val_loss', patience=10)
+  #callback = EarlyStopping(monitor='val_loss', patience=10)
 
   # compile model
   model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics = ['accuracy'])
@@ -129,7 +129,7 @@ for base_model in base_models:
   start_time = datetime.now()
 
   # fit initial model (train on a few epochs before unfreezing two top blocks of base model for fine-tuning)
-  history = model.fit(x=x_train,y=y_train, epochs=5, validation_data=(x_val, y_val))
+  history = model.fit(x=x_train,y=y_train, epochs=10, validation_data=(x_val, y_val))
 
   # unfreeze two top blocks og base model, so they can be fine-tuned
   if base_model == 'inceptionv3':
@@ -153,7 +153,7 @@ for base_model in base_models:
         model.summary()   
 
   # fine-tune model (training two top blocks of base model + fully-connected layers) 
-  history_finetuning = model.fit(x=x_train,y=y_train, epochs=100, validation_data=(x_val, y_val), callbacks=[callback])
+  history_finetuning = model.fit(x=x_train,y=y_train, epochs=200, validation_data=(x_val, y_val)) #, callbacks=[callback])
 
   #save environmental impact + no. of epochs
   emissions: float = tracker.stop()
@@ -180,10 +180,10 @@ for base_model in base_models:
   clsf_report.to_csv(f'output/{base_model}/{base_model}_clsf_report.csv', index= True)
 
 # plot frozen history: loss
-  plt.plot(np.array(history.history['val_loss'])*100, label = 'Validation Loss')
-  plt.plot(np.array(history.history['loss'])*100, label = 'Training Loss')
+  plt.plot(np.array(history.history['val_loss']), label = 'Validation Loss')
+  plt.plot(np.array(history.history['loss']), label = 'Training Loss')
   plt.title('Validation loss history')
-  plt.ylabel('Loss value (%)')
+  plt.ylabel('Loss value')
   plt.xlabel('No. epoch')
   plt.legend(loc="upper right")
   plt.savefig(f'output/{base_model}/{base_model}_frozen_loss.jpg')
@@ -200,10 +200,10 @@ for base_model in base_models:
   plt.clf()
 
   # plot finetuning history: loss
-  plt.plot(np.array(history_finetuning.history['val_loss'])*100, label = 'Validation Loss')
-  plt.plot(np.array(history_finetuning.history['loss'])*100, label = 'Training Loss')
+  plt.plot(np.array(history_finetuning.history['val_loss']), label = 'Validation Loss')
+  plt.plot(np.array(history_finetuning.history['loss']), label = 'Training Loss')
   plt.title('Validation loss history')
-  plt.ylabel('Loss value (%)')
+  plt.ylabel('Loss value')
   plt.xlabel('No. epoch')
   plt.legend(loc="upper right")
   plt.savefig(f'output/{base_model}/{base_model}_loss.jpg')
