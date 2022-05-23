@@ -12,18 +12,18 @@ _________________________________________________________________
  batch_normalization (BatchN  (None, 38416)            153664    
  ormalization)                                                   
                                                                  
- dense (Dense)               (None, 16)                614672    
+ dense (Dense)               (None, 100)               3841700   
                                                                  
- dropout (Dropout)           (None, 16)                0         
+ dropout (Dropout)           (None, 100)               0         
                                                                  
- dense_1 (Dense)             (None, 9)                 153       
+ dense_1 (Dense)             (None, 64)                6464      
                                                                  
- dropout_1 (Dropout)         (None, 9)                 0         
+ dropout_1 (Dropout)         (None, 64)                0         
                                                                  
- dense_2 (Dense)             (None, 5)                 50        
+ dense_2 (Dense)             (None, 5)                 325       
                                                                  
 =================================================================
-Total params: 768,699
-Trainable params: 691,867
+Total params: 4,002,313
+Trainable params: 3,925,481
 Non-trainable params: 76,832
 _________________________________________________________________
