@@ -38,11 +38,11 @@ from src.utils import *
 # load data
 root_dir = os.path.abspath("")
 
-filenames=[os.path.join(root_dir,'data','training10_0','training10_0.tfrecords') #,
-          #os.path.join(root_dir,'data','training10_1','training10_1.tfrecords'), 
-          #os.path.join(root_dir,'data','training10_2','training10_2.tfrecords'),
-          #os.path.join(root_dir,'data','training10_3','training10_3.tfrecords'), 
-          #os.path.join(root_dir,'data','training10_4','training10_4.tfrecords')
+filenames=[os.path.join(root_dir,'data','training10_0','training10_0.tfrecords'),
+          os.path.join(root_dir,'data','training10_1','training10_1.tfrecords'), 
+          os.path.join(root_dir,'data','training10_2','training10_2.tfrecords'),
+          os.path.join(root_dir,'data','training10_3','training10_3.tfrecords'), 
+          os.path.join(root_dir,'data','training10_4','training10_4.tfrecords')
           ]
 
 images, labels = [], []
@@ -56,8 +56,8 @@ images = [i for image in images for i in image]
 labels = [l for label in labels for l in label]
 
 # define train and test
-X=np.array(images)[:500]
-y=np.array(labels)[:500]
+X=np.array(images)
+y=np.array(labels)
 
 # divide data into train, test and val
 x_train, x_test1, y_train, y_test1 = train_test_split(X, y, test_size=0.3, random_state=42,
@@ -96,7 +96,7 @@ tracker = EmissionsTracker()
 callback = EarlyStopping(monitor='val_loss', patience=3)
 
 # prepare names of base models to loop through
-base_models = ['efficientnetv2m'] # 'inceptionv3'] 
+base_models = ['efficientnetv2m', 'inceptionv3'] 
 
 # fine-tune and evaluate base models
 for base_model in base_models: 
@@ -148,16 +148,18 @@ for base_model in base_models:
   # fine-tune model (training two top blocks of base model + fully-connected layers) 
   history_finetuning = model.fit(x=x_train,y=y_train, epochs=2, validation_data=(x_val, y_val), callbacks=[callback])
 
-  #save environmental impact 
+  #save environmental impact + no. of epochs
   emissions: float = tracker.stop()
   end_time = datetime.now()
   path = os.path.join(root_dir,'output', 'co2emissions.csv')
+  no_epochs = len(history.history['val_loss'])
+
   if exists(path): 
     with open(path,'a') as fd:
-      fd.write(f'Emissions for {base_model}: {emissions} kg,  Duration: {end_time - start_time}; ')
+      fd.write(f'Emissions for {base_model}: {emissions} kg,  Duration: {end_time - start_time}, No. of epochs run: {no_epochs};')
   else: 
     with open(path, 'w') as fd:
-      fd.write(f'Emissions for {base_model}: {emissions} kg,  Duration: {end_time - start_time}; ')
+      fd.write(f'Emissions for {base_model}: {emissions} kg,  Duration: {end_time - start_time}, No. of epochs run: {no_epochs};')
 
   # evaluate model  
   model.evaluate(x_test, y_test)
@@ -171,7 +173,7 @@ for base_model in base_models:
   clsf_report.to_csv(f'output/{base_model}/{base_model}_clsf_report.csv', index= True)
 
   # plot model architecture
-  plot_model(model, f'output/{base_model}/{base_model}_architecture.png', show_shapes=True)
+  #plot_model(model, f'output/{base_model}/{base_model}_architecture.png', show_shapes=True)
 
 # plot frozen history: loss
   plt.plot(np.array(history.history['val_loss'])*100, label = 'Validation Loss')
@@ -223,5 +225,7 @@ for base_model in base_models:
   ax.yaxis.set_ticklabels(['negative', 'benign calcification', 'benign mass', 'malignant calcification', 'malignant mass'], rotation = 0);
   figure = svm.get_figure()
   figure.savefig(f'output/{base_model}/{base_model}_confusion_matrix.png', bbox_inches = 'tight') 
-  pd.DataFrame(history_finetuning.history).plot()
-  plt.savefig(f'output/{base_model}/{base_model}_finetuning.jpg')
+
+
+  # pd.DataFrame(history_finetuning.history).plot()
+  # plt.savefig(f'output/{base_model}/{base_model}_finetuning.jpg')
