@@ -93,7 +93,7 @@ print('Total number of images:', x_train.shape[0] + x_test.shape[0] + x_val.shap
 tracker = EmissionsTracker()
 
 # prepare names of base models to loop through
-base_models = ['efficientnetv2m'] # 'inceptionv3', 
+base_models = ['efficientnetv2m', 'inceptionv3']
 
 # fine-tune and evaluate base models
 for base_model in base_models: 
@@ -138,7 +138,7 @@ for base_model in base_models:
   model.compile(keras.optimizers.Adam(0.0001), loss='sparse_categorical_crossentropy', metrics = ['accuracy']) 
 
   # save model parameters with unfrozen top blocks of base_model
-  with open(f'output/{base_model}/{base_model}_unfrozen_summary.txt', 'w') as f:
+  with open(f'output/{base_model}/{base_model}_finetuning_summary.txt', 'w') as f:
     with redirect_stdout(f):
         model.summary()   
 
