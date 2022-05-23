@@ -35,6 +35,9 @@ from datetime import datetime
 # import functions
 from src.utils import *
 
+# print how many GPUs are available
+print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
+
 # load data
 root_dir = os.path.abspath("")
 
@@ -90,7 +93,7 @@ print('Number of images in x_val', x_val.shape[0], ', x_val shape is', x_val.sha
 print('Total number of images:', x_train.shape[0] + x_test.shape[0] + x_val.shape[0])
 
 # prepare names of base models to loop through
-base_models = ['inceptionv3'] # 'efficientnetv2m', 
+base_models = ['inceptionv3', 'efficientnetv2m']
 
 # fine-tune and evaluate base models
 for base_model in base_models: 
@@ -172,9 +175,6 @@ for base_model in base_models:
   clsf_report = pd.DataFrame(classification_report(y_test, y_pred_bool, output_dict=True)).transpose()
   clsf_report.to_csv(f'output/{base_model}/{base_model}_clsf_report.csv', index= True)
 
-  # plot model architecture
-  #plot_model(model, f'output/{base_model}/{base_model}_architecture.png', show_shapes=True)
-
 # plot frozen history: loss
   plt.plot(np.array(history.history['val_loss'])*100, label = 'Validation Loss')
   plt.plot(np.array(history.history['loss'])*100, label = 'Training Loss')
@@ -229,3 +229,8 @@ for base_model in base_models:
 
   # pd.DataFrame(history_finetuning.history).plot()
   # plt.savefig(f'output/{base_model}/{base_model}_finetuning.jpg')
+
+
+  # plot model architecture
+  plot_model(model, f'output/{base_model}/{base_model}_architecture.png', show_shapes=True)
+
