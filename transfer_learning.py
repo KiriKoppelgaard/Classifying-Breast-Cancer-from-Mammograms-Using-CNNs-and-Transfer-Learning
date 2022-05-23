@@ -236,5 +236,5 @@ for base_model in base_models:
 
 
   # plot model architecture
-  plot_model(model, f'output/{base_model}/{base_model}_architecture.png', show_shapes=True)
+  #plot_model(model, f'output/{base_model}/{base_model}_architecture.png', show_shapes=True)
 
