@@ -18,11 +18,11 @@ from src.utils import *
 # load data
 root_dir = os.path.abspath("")
 
-filenames=[os.path.join(root_dir,'data','training10_0','training10_0.tfrecords'),
-          os.path.join(root_dir,'data','training10_1','training10_1.tfrecords'), 
-          os.path.join(root_dir,'data','training10_2','training10_2.tfrecords'),
-          os.path.join(root_dir,'data','training10_3','training10_3.tfrecords'),
-          os.path.join(root_dir,'data','training10_4','training10_4.tfrecords')
+filenames=[os.path.join(root_dir,'data','training10_0','training10_0.tfrecords')#,
+#          os.path.join(root_dir,'data','training10_1','training10_1.tfrecords'), 
+#          os.path.join(root_dir,'data','training10_2','training10_2.tfrecords'),
+#          os.path.join(root_dir,'data','training10_3','training10_3.tfrecords'),
+#          os.path.join(root_dir,'data','training10_4','training10_4.tfrecords')
           ]
 
 # empty lists
@@ -83,11 +83,11 @@ for model_name in ['cnn_small', 'cnn_medium', 'cnn_large']:
 
   #define model
   if model_name == 'cnn_small':
-    model = cnn(input_shape, conv_layers = [100], dense_layers = [256, 100])
+    model = cnn(input_shape, conv_layers = [100], dense_layers = [100, 49])
   elif model_name == 'cnn_medium':
-    model = cnn(input_shape, conv_layers = [49, 100], dense_layers = [256, 100])
+    model = cnn(input_shape, conv_layers = [49, 100], dense_layers = [100, 49])
   elif model_name == 'cnn_large':
-    model = cnn(input_shape, conv_layers = [49, 100, 196], dense_layers = [256, 100])
+    model = cnn(input_shape, conv_layers = [49, 100, 196], dense_layers = [100, 49])
 
   #compile model
   model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics = ['accuracy'])
