@@ -31,10 +31,12 @@ filenames=[os.path.join(root_dir,'data','training10_0','training10_0.tfrecords')
 # empty lists
 images, labels = [], []
 
+print("loading data")
 for file in filenames:
     image, label = read_data(file, transfer_learning=False)
     images.append(image)
     labels.append(label)
+print("data has been loaded")
 
 # flatten images and labels (so they are not nested lists)
 images = [i for image in images for i in image]
@@ -50,6 +52,7 @@ x_train, x_test1, y_train, y_test1 = train_test_split(X, y, test_size=0.3, rando
 
 x_val, x_test, y_val, y_test = train_test_split(x_test1, y_test1, test_size=0.3, random_state=42,
                                                 shuffle=True,stratify=y_test1)
+print("train and test split completed")
 
 #clear up space 
 del X
@@ -75,6 +78,7 @@ print('Number of images in x_train', x_train.shape[0])
 print('Number of images in x_test', x_test.shape[0])
 print('Number of images in x_val', x_val.shape[0])
 
+print("starting model loop")
 #create models for hyperparameter comparison
 for model_name in ['cnn_small', 'cnn_medium', 'cnn_large']:
   #Create print
