@@ -1,11 +1,10 @@
 import tensorflow as tf
 from tensorflow import keras
 import cv2
+import sys, os
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Conv2D, Dropout, Flatten, MaxPooling2D, AveragePooling2D, BatchNormalization, Activation, GlobalAveragePooling2D
 from tensorflow.keras.applications import InceptionV3, EfficientNetV2M
-# from sklearn.metrics import classification_report
-# import pandas as pd
 
 def _parse_function(example):
     """
@@ -161,5 +160,3 @@ def transfer_learning_model(base_model, input_shape):
         layer.trainable = False # keep weights from pre-training and only update new layers 
 
     return model
-
-
