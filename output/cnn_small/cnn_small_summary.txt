@@ -1,29 +1,29 @@
-Model: "sequential"
+Model: "sequential_1"
 _________________________________________________________________
  Layer (type)                Output Shape              Param #   
 =================================================================
- conv2d (Conv2D)             (None, 297, 297, 100)     1000      
+ conv2d_1 (Conv2D)           (None, 297, 297, 100)     1000      
                                                                  
- average_pooling2d (AverageP  (None, 148, 148, 100)    0         
- ooling2D)                                                       
+ average_pooling2d_1 (Averag  (None, 148, 148, 100)    0         
+ ePooling2D)                                                     
                                                                  
- flatten (Flatten)           (None, 2190400)           0         
+ flatten_1 (Flatten)         (None, 2190400)           0         
                                                                  
- batch_normalization (BatchN  (None, 2190400)          8761600   
- ormalization)                                                   
+ batch_normalization_1 (Batc  (None, 2190400)          8761600   
+ hNormalization)                                                 
                                                                  
- dense (Dense)               (None, 100)               219040100 
+ dense_3 (Dense)             (None, 256)               560742656 
                                                                  
- dropout (Dropout)           (None, 100)               0         
+ dropout_2 (Dropout)         (None, 256)               0         
                                                                  
- dense_1 (Dense)             (None, 49)                4949      
+ dense_4 (Dense)             (None, 100)               25700     
                                                                  
- dropout_1 (Dropout)         (None, 49)                0         
+ dropout_3 (Dropout)         (None, 100)               0         
                                                                  
- dense_2 (Dense)             (None, 5)                 250       
+ dense_5 (Dense)             (None, 5)                 505       
                                                                  
 =================================================================
-Total params: 227,807,899
-Trainable params: 223,427,099
+Total params: 569,531,461
+Trainable params: 565,150,661
 Non-trainable params: 4,380,800
 _________________________________________________________________
