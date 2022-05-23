@@ -1,0 +1,34 @@
+Model: "sequential_1"
+_________________________________________________________________
+ Layer (type)                Output Shape              Param #   
+=================================================================
+ conv2d_1 (Conv2D)           (None, 297, 297, 9)       90        
+                                                                 
+ max_pooling2d (MaxPooling2D  (None, 148, 148, 9)      0         
+ )                                                               
+                                                                 
+ conv2d_2 (Conv2D)           (None, 146, 146, 16)      1312      
+                                                                 
+ average_pooling2d_1 (Averag  (None, 73, 73, 16)       0         
+ ePooling2D)                                                     
+                                                                 
+ flatten_1 (Flatten)         (None, 85264)             0         
+                                                                 
+ batch_normalization_1 (Batc  (None, 85264)            341056    
+ hNormalization)                                                 
+                                                                 
+ dense_3 (Dense)             (None, 16)                1364240   
+                                                                 
+ dropout_2 (Dropout)         (None, 16)                0         
+                                                                 
+ dense_4 (Dense)             (None, 9)                 153       
+                                                                 
+ dropout_3 (Dropout)         (None, 9)                 0         
+                                                                 
+ dense_5 (Dense)             (None, 5)                 50        
+                                                                 
+=================================================================
+Total params: 1,706,901
+Trainable params: 1,536,373
+Non-trainable params: 170,528
+_________________________________________________________________
