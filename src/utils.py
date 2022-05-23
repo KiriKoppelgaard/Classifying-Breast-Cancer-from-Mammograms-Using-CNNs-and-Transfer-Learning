@@ -59,9 +59,8 @@ def read_data(filename,transfer_learning=True):
         image = tf.reshape(image, [299, 299])       
         # make numpy again
         image=image.numpy()
-        # if not transfer_learning: 
-        #     # downsize image to 100x100 pixels
-        #     image=cv2.resize(image,(100,100))
+        # downsize image to 100x100 pixels
+        image=cv2.resize(image,(100,100))
         if transfer_learning:
             # reformat for RGB channels (since the images are b/w, we duplicate grey scale values)
             image=cv2.merge([image,image,image])
