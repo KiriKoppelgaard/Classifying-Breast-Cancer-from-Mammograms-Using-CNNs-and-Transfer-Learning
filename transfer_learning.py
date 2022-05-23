@@ -122,7 +122,7 @@ for base_model in base_models:
   start_time = datetime.now()
 
   # fit initial model (train on a few epochs before unfreezing two top blocks of base model for fine-tuning)
-  history = model.fit(x=x_train,y=y_train, epochs=2, validation_data=(x_val, y_val))
+  history = model.fit(x=x_train,y=y_train, epochs=5, validation_data=(x_val, y_val))
 
   # unfreeze two top blocks og base model, so they can be fine-tuned
   if base_model == 'inceptionv3':
@@ -146,7 +146,7 @@ for base_model in base_models:
         model.summary()   
 
   # fine-tune model (training two top blocks of base model + fully-connected layers) 
-  history_finetuning = model.fit(x=x_train,y=y_train, epochs=2, validation_data=(x_val, y_val), callbacks=[callback])
+  history_finetuning = model.fit(x=x_train,y=y_train, epochs=100, validation_data=(x_val, y_val), callbacks=[callback])
 
   #save environmental impact + no. of epochs
   emissions: float = tracker.stop()
@@ -173,7 +173,7 @@ for base_model in base_models:
   clsf_report.to_csv(f'output/{base_model}/{base_model}_clsf_report.csv', index= True)
 
   # plot model architecture
-  #plot_model(model, f'output/{base_model}/{base_model}_architecture.png', show_shapes=True)
+  plot_model(model, f'output/{base_model}/{base_model}_architecture.png', show_shapes=True)
 
 # plot frozen history: loss
   plt.plot(np.array(history.history['val_loss'])*100, label = 'Validation Loss')
