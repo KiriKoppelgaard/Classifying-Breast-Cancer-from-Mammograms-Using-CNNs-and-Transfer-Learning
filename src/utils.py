@@ -148,11 +148,12 @@ def transfer_learning_model(base_model, input_shape):
     x = Dropout(0.2)(x) # dropout
     x = Flatten()(x) # flatten to prepare for fully-connected layers
     x = BatchNormalization()(x) # batch normalisation
-    x = Dense(256, activation='relu')(x) # fully-connected layer
+    x = Dense(16, activation='relu')(x) # fully-connected layer - changed from 256
     x = Dropout(0.2)(x) # dropout
-    x = Dense(100, activation='relu')(x) # fully-connected layer
+    x = Dense(9, activation='relu')(x) # fully-connected layer - changed from 100
     x = Dropout(0.2)(x) # dropout
     predictions = Dense(5, activation='softmax')(x) # output layer; five classes
+
 
     # collect model
     model = Model(inputs=base_model.input, outputs=predictions)
