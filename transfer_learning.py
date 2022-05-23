@@ -173,7 +173,7 @@ for base_model in base_models:
   clsf_report.to_csv(f'output/{base_model}/{base_model}_clsf_report.csv', index= True)
 
   # plot model architecture
-  #plot_model(model, f'output/{base_model}/{base_model}_architecture.png', show_shapes=True)
+  plot_model(model, f'output/{base_model}/{base_model}_architecture.png', show_shapes=True)
 
 # plot frozen history: loss
   plt.plot(np.array(history.history['val_loss'])*100, label = 'Validation Loss')
