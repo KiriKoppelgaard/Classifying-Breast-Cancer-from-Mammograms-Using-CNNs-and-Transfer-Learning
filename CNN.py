@@ -80,7 +80,7 @@ print('Number of images in x_val', x_val.shape[0])
 
 print("starting model loop")
 #create models for hyperparameter comparison
-for model_name in ['cnn_medium', 'cnn_large']: #'cnn_small'
+for model_name in ['cnn_small']: #, 'cnn_medium', 'cnn_large'
   #Create print
   print(model_name, 'initializing')
 
