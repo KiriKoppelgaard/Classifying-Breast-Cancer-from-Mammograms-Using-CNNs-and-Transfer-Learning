@@ -18,11 +18,11 @@ from src.utils import *
 # load data
 root_dir = os.path.abspath("")
 
-filenames=[os.path.join(root_dir,'data','training10_0','training10_0.tfrecords')#,
-#          os.path.join(root_dir,'data','training10_1','training10_1.tfrecords'), 
-#          os.path.join(root_dir,'data','training10_2','training10_2.tfrecords'),
-#          os.path.join(root_dir,'data','training10_3','training10_3.tfrecords'),
-#          os.path.join(root_dir,'data','training10_4','training10_4.tfrecords')
+filenames=[os.path.join(root_dir,'data','training10_0','training10_0.tfrecords'),
+          os.path.join(root_dir,'data','training10_1','training10_1.tfrecords'), 
+          os.path.join(root_dir,'data','training10_2','training10_2.tfrecords'),
+          os.path.join(root_dir,'data','training10_3','training10_3.tfrecords'),
+          os.path.join(root_dir,'data','training10_4','training10_4.tfrecords')
           ]
 
 # empty lists
@@ -76,18 +76,20 @@ print('Number of images in x_val', x_val.shape[0])
 tracker = EmissionsTracker()
 
 #create models for hyperparameter comparison
-
 for model_name in ['cnn_small', 'cnn_medium', 'cnn_large']:
   #Create print
   print(model_name, 'initializing')
 
   #define model
   if model_name == 'cnn_small':
-    model = cnn(input_shape, conv_layers = [100], dense_layers = [100, 49])
+    model = cnn(input_shape, conv_layers = [16], dense_layers = [16, 9])
   elif model_name == 'cnn_medium':
-    model = cnn(input_shape, conv_layers = [49, 100], dense_layers = [100, 49])
+    model = cnn(input_shape, conv_layers = [9, 16], dense_layers = [16, 9])
   elif model_name == 'cnn_large':
-    model = cnn(input_shape, conv_layers = [49, 100, 196], dense_layers = [100, 49])
+    model = cnn(input_shape, conv_layers = [9, 16, 25], dense_layers = [16, 9])
+
+  #create early stopping object 
+  callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=3)
 
   #compile model
   model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics = ['accuracy'])
@@ -101,21 +103,21 @@ for model_name in ['cnn_small', 'cnn_medium', 'cnn_large']:
   tracker.start()
   start_time = datetime.now()
 
-
   # Fit model
-  history = model.fit(x=x_train,y=y_train, epochs=500, validation_data=(x_val, y_val))
+  history = model.fit(x=x_train,y=y_train, epochs=500, validation_data=(x_val, y_val), callbacks=[callback])
 
   #save environmental impact 
   emissions: float = tracker.stop()
   end_time = datetime.now()
   path = os.path.join(root_dir,'output', 'co2emissions.csv')
+  no_epochs = len(history.history['val_loss'])
 
   if exists(path): 
     with open(path,'a') as fd:
-      fd.write(f'Emissions for {model_name}: {emissions} kg,  Duration: {end_time - start_time}; ')
+      fd.write(f'Emissions for {model_name}: {emissions} kg,  Duration: {end_time - start_time}, No. of epochs run: {no_epochs};')
   else: 
     with open(path, 'w') as fd:
-      fd.write(f'Emissions for {model_name}: {emissions} kg,  Duration: {end_time - start_time}; ')
+      fd.write(f'Emissions for {model_name}: {emissions} kg,  Duration: {end_time - start_time}, No. of epochs run: {no_epochs};')
 
   # Evaluate model
   model.evaluate(x_test, y_test)
