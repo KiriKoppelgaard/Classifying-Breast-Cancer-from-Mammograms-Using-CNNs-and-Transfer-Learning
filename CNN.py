@@ -82,7 +82,7 @@ for model_name in ['cnn_small', 'cnn_medium', 'cnn_large']:
 
   #define model
   if model_name == 'cnn_small':
-    model = cnn(input_shape, conv_layers = [16], dense_layers = [16, 9])
+    model = cnn(input_shape, conv_layers = [9], dense_layers = [16, 9])
   elif model_name == 'cnn_medium':
     model = cnn(input_shape, conv_layers = [9, 16], dense_layers = [16, 9])
   elif model_name == 'cnn_large':
