@@ -72,13 +72,15 @@ print('Number of images in x_train', x_train.shape[0])
 print('Number of images in x_test', x_test.shape[0])
 print('Number of images in x_val', x_val.shape[0])
 
-#define emissionstracker
-tracker = EmissionsTracker()
+
 
 #create models for hyperparameter comparison
 for model_name in ['cnn_small', 'cnn_medium', 'cnn_large']:
   #Create print
   print(model_name, 'initializing')
+
+  #define emissionstracker
+  tracker = EmissionsTracker()
 
   #define model
   if model_name == 'cnn_small':
@@ -89,7 +91,7 @@ for model_name in ['cnn_small', 'cnn_medium', 'cnn_large']:
     model = cnn(input_shape, conv_layers = [9, 16, 25], dense_layers = [16, 9])
 
   #create early stopping object 
-  callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=3)
+  callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10)
 
   #compile model
   model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics = ['accuracy'])
