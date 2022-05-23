@@ -49,10 +49,13 @@ filenames=[os.path.join(root_dir,'data','training10_0','training10_0.tfrecords')
           ]
 
 images, labels = [], []
+
+print("loading data")
 for file in filenames:
     image, label = read_data(file, transfer_learning=True) # tl=True: duplicate image shape so we have three channels 
     images.append(image)
     labels.append(label)
+print("data has been loaded")
 
 # flatten data (images and labels), so they are not nested lists
 images = [i for image in images for i in image]
@@ -68,7 +71,7 @@ x_train, x_test1, y_train, y_test1 = train_test_split(X, y, test_size=0.3, rando
 
 x_val, x_test, y_val, y_test = train_test_split(x_test1, y_test1, test_size=0.3, random_state=42,
                                                 shuffle=True,stratify=y_test1)
-
+print("train and test split completed")
 # clear up space 
 del X
 del y
@@ -95,6 +98,7 @@ print('Total number of images:', x_train.shape[0] + x_test.shape[0] + x_val.shap
 # prepare names of base models to loop through
 base_models = ['inceptionv3', 'efficientnetv2m']
 
+print("starting model loop")
 # fine-tune and evaluate base models
 for base_model in base_models: 
   # load current base model (with non-trainable base_model layers)
