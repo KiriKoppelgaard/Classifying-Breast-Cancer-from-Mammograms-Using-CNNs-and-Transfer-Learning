@@ -89,14 +89,8 @@ print('Number of images in x_test', x_test.shape[0], ', x_test shape is', x_test
 print('Number of images in x_val', x_val.shape[0], ', x_val shape is', x_val.shape)
 print('Total number of images:', x_train.shape[0] + x_test.shape[0] + x_val.shape[0])
 
-# define emissions tracker
-tracker = EmissionsTracker()
-
-# define callback (for early stopping)
-callback = EarlyStopping(monitor='val_loss', patience=3)
-
 # prepare names of base models to loop through
-base_models = ['efficientnetv2m', 'inceptionv3'] 
+base_models = ['inceptionv3'] # 'efficientnetv2m', 
 
 # fine-tune and evaluate base models
 for base_model in base_models: 
@@ -108,6 +102,12 @@ for base_model in base_models:
   
   # print model initialisation
   print(base_model, 'initializing')
+
+  # define emissions tracker
+  tracker = EmissionsTracker()
+
+  # define callback (for early stopping)
+  callback = EarlyStopping(monitor='val_loss', patience=10)
 
   # compile model
   model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics = ['accuracy'])
@@ -173,7 +173,7 @@ for base_model in base_models:
   clsf_report.to_csv(f'output/{base_model}/{base_model}_clsf_report.csv', index= True)
 
   # plot model architecture
-  plot_model(model, f'output/{base_model}/{base_model}_architecture.png', show_shapes=True)
+  #plot_model(model, f'output/{base_model}/{base_model}_architecture.png', show_shapes=True)
 
 # plot frozen history: loss
   plt.plot(np.array(history.history['val_loss'])*100, label = 'Validation Loss')
