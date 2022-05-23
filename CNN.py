@@ -99,7 +99,7 @@ for model_name in ['cnn_small']: #, 'cnn_medium', 'cnn_large'
   #callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10)
 
   #compile model
-  model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics = ['accuracy', tf.keras.metrics.AUC(), tf.keras.metrics.FalsePositives(), tf.keras.metrics.FalseNegatives()])
+  model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics = ['accuracy', tf.keras.metrics.FalsePositives(), tf.keras.metrics.FalseNegatives()])
 
   #save model parameters 
   with open(f'output/{model_name}/{model_name}_summary.txt', 'w') as f:
