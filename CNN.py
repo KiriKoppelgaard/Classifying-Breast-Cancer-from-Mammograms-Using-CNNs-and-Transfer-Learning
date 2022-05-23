@@ -15,6 +15,9 @@ from datetime import datetime
 #import functions
 from src.utils import *
 
+#Print GPU
+print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
+
 # load data
 root_dir = os.path.abspath("")
 
@@ -71,8 +74,6 @@ x_val /= 255
 print('Number of images in x_train', x_train.shape[0])
 print('Number of images in x_test', x_test.shape[0])
 print('Number of images in x_val', x_val.shape[0])
-
-
 
 #create models for hyperparameter comparison
 for model_name in ['cnn_small', 'cnn_medium', 'cnn_large']:
@@ -132,9 +133,7 @@ for model_name in ['cnn_small', 'cnn_medium', 'cnn_large']:
   clsf_report = pd.DataFrame(classification_report(y_test, y_pred_bool, output_dict=True)).transpose()
   clsf_report.to_csv(f'output/{model_name}/{model_name}_clsf_report.csv', index= True)
 
-  #plot model architecture
-  plot_model(model, f'output/{model_name}/{model_name}_architecture.png', show_shapes=True)
-
+  
   # Visualize history
   # Plot history: Loss
   plt.plot(np.array(history.history['val_loss'])*100, label = 'Validation Loss')
@@ -167,6 +166,9 @@ for model_name in ['cnn_small', 'cnn_medium', 'cnn_large']:
   ax.yaxis.set_ticklabels(['negative', 'benign calcification', 'benign mass', 'malignant calcification', 'malignant mass'], rotation = 0);
   figure = svm.get_figure()
   figure.savefig(f'output/{model_name}/{model_name}_confusion_matrix.png', bbox_inches = 'tight') 
+
+  #plot model architecture
+  plot_model(model, f'output/{model_name}/{model_name}_architecture.png', show_shapes=True)
 
   # Predict using fitted model 
   # image_index = 2
