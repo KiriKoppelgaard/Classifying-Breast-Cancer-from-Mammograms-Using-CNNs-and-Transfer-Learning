@@ -99,7 +99,7 @@ for model_name in ['cnn_small']: #, 'cnn_medium', 'cnn_large'
   #callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10)
 
   #compile model
-  model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics = ['accuracy', tf.keras.metrics.FalsePositives(), tf.keras.metrics.FalseNegatives()])
+  model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics = ['accuracy'])
 
   #save model parameters 
   with open(f'output/{model_name}/{model_name}_summary.txt', 'w') as f:
@@ -117,7 +117,6 @@ for model_name in ['cnn_small']: #, 'cnn_medium', 'cnn_large'
   emissions: float = tracker.stop()
   end_time = datetime.now()
   co2_path = os.path.join(root_dir,'output', 'co2emissions.csv')
-  metrics_path = os.path.join(root_dir,'output', 'metrics.csv')
   no_epochs = len(history.history['val_loss'])
 
   if exists(co2_path): 
@@ -126,13 +125,6 @@ for model_name in ['cnn_small']: #, 'cnn_medium', 'cnn_large'
   else: 
     with open(co2_path, 'w') as fd:
       fd.write(f'Emissions for {model_name}: {emissions} kg,  Duration: {end_time - start_time}, No. of epochs run: {no_epochs};')
-
-  if exists(metrics_path): 
-    with open(metrics_path,'a') as fd:
-      fd.write(history.history)
-  else: 
-    with open(metrics_path, 'w') as fd:
-      fd.write(history.history)
 
   # Evaluate model
   model.evaluate(x_test, y_test)
