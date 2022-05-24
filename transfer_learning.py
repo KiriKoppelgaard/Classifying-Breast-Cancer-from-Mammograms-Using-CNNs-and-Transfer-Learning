@@ -129,7 +129,7 @@ for base_model in base_models:
   start_time = datetime.now()
 
   # fit initial model (train on a few epochs before unfreezing two top blocks of base model for fine-tuning)
-  history = model.fit(x=x_train,y=y_train, epochs=2, validation_data=(x_val, y_val))
+  history = model.fit(x=x_train,y=y_train, epochs=10, validation_data=(x_val, y_val))
 
   # unfreeze two top blocks og base model, so they can be fine-tuned
   if base_model == 'inceptionv3':
@@ -153,7 +153,7 @@ for base_model in base_models:
         model.summary()   
 
   # fine-tune model (training two top blocks of base model + fully-connected layers) 
-  history_finetuning = model.fit(x=x_train,y=y_train, epochs=2, validation_data=(x_val, y_val)) #, callbacks=[callback])
+  history_finetuning = model.fit(x=x_train,y=y_train, epochs=200, validation_data=(x_val, y_val)) #, callbacks=[callback])
 
   #save environmental impact + no. of epochs
   emissions: float = tracker.stop()
