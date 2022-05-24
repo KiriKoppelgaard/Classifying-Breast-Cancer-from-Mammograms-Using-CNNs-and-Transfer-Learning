@@ -129,7 +129,7 @@ for base_model in base_models:
   start_time = datetime.now()
 
   # fit initial model (train on a few epochs before unfreezing two top blocks of base model for fine-tuning)
-  history = model.fit(x=x_train,y=y_train, epochs=10, validation_data=(x_val, y_val))
+  history = model.fit(x=x_train,y=y_train, epochs=150, validation_data=(x_val, y_val))
   print("pre-training completed for", base_model)
 
   # unfreeze two top blocks og base model, so they can be fine-tuned
@@ -154,7 +154,7 @@ for base_model in base_models:
         model.summary()   
 
   # fine-tune model (training two top blocks of base model + fully-connected layers) 
-  history_finetuning = model.fit(x=x_train,y=y_train, epochs=200, validation_data=(x_val, y_val)) #, callbacks=[callback])
+  history_finetuning = model.fit(x=x_train,y=y_train, epochs=100, validation_data=(x_val, y_val)) #, callbacks=[callback])
   print("finetuning completed for", base_model)
 
   #save environmental impact + no. of epochs
@@ -180,6 +180,10 @@ for base_model in base_models:
   # save classification report
   clsf_report = pd.DataFrame(classification_report(y_test, y_pred_bool, output_dict=True)).transpose()
   clsf_report.to_csv(f'output/{base_model}/{base_model}_clsf_report.csv', index= True)
+
+  # save history
+  hist_df = pd.DataFrame(history.history)
+  hist_df.to_csv(f'output/{base_model}/{base_model}_history.csv', index= True)
 
 # plot frozen history: loss
   plt.plot(np.array(history.history['val_loss']), label = 'Validation Loss')
