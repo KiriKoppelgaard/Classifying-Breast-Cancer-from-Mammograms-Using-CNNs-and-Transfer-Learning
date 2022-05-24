@@ -130,6 +130,7 @@ for base_model in base_models:
 
   # fit initial model (train on a few epochs before unfreezing two top blocks of base model for fine-tuning)
   history = model.fit(x=x_train,y=y_train, epochs=10, validation_data=(x_val, y_val))
+  print("pre-training completed for", base_model)
 
   # unfreeze two top blocks og base model, so they can be fine-tuned
   if base_model == 'inceptionv3':
@@ -154,6 +155,7 @@ for base_model in base_models:
 
   # fine-tune model (training two top blocks of base model + fully-connected layers) 
   history_finetuning = model.fit(x=x_train,y=y_train, epochs=200, validation_data=(x_val, y_val)) #, callbacks=[callback])
+  print("finetuning completed for", base_model)
 
   #save environmental impact + no. of epochs
   emissions: float = tracker.stop()
@@ -230,6 +232,7 @@ for base_model in base_models:
   figure = svm.get_figure()
   figure.savefig(f'output/{base_model}/{base_model}_confusion_matrix.png', bbox_inches = 'tight') 
 
+  print("Evaluation and plotting completed for", base_model)
 
   # pd.DataFrame(history_finetuning.history).plot()
   # plt.savefig(f'output/{base_model}/{base_model}_finetuning.jpg')
