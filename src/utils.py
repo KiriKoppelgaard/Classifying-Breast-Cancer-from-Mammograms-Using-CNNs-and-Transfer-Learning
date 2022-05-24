@@ -143,7 +143,7 @@ def transfer_learning_model(base_model, input_shape):
         "Error: base_model must be either 'inceptionv3' or 'efficientnetv2m"
     
     x = base_model.output
-    x = AveragePooling2D()(x)  # average pooling layer
+    x = AveragePooling2D(padding='same')(x)  # average pooling layer
     x = Dropout(0.2)(x) # dropout
     x = Flatten()(x) # flatten to prepare for fully-connected layers
     x = BatchNormalization()(x) # batch normalisation
