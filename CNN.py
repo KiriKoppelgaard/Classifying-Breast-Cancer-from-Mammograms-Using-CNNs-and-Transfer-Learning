@@ -132,6 +132,13 @@ for model_name in ['cnn_small', 'cnn_medium', 'cnn_large']:
   #create predictions for test set 
   y_pred = model.predict(x_test, batch_size=64, verbose=1)
   y_pred_bool = np.argmax(y_pred, axis=1)
+  y_pred_val = model.predict(x_val, batch_size=64, verbose=1)
+  y_pred_bool_val = np.argmax(y_pred_val, axis=1)
+
+
+  #save classification report
+  clsf_report = pd.DataFrame(classification_report(y_val, y_pred_bool, output_dict=True)).transpose()
+  clsf_report.to_csv(f'output/{model_name}/{model_name}_clsf_val_report.csv', index= True)
 
   #save classification report
   clsf_report = pd.DataFrame(classification_report(y_test, y_pred_bool, output_dict=True)).transpose()
@@ -142,7 +149,7 @@ for model_name in ['cnn_small', 'cnn_medium', 'cnn_large']:
   hist_df.to_csv(f'output/{model_name}/{model_name}_history.csv', index= True)
   
   # Visualize history
-  # Plot history: Loss
+  # Plot history: Loss  
   plt.plot(np.array(history.history['val_loss']), label = 'Validation Loss')
   plt.plot(np.array(history.history['loss']), label = 'Training Loss')
   plt.title('Validation loss history')
