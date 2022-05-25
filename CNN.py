@@ -47,10 +47,10 @@ X=np.array(images)
 y=np.array(labels)
 
 #divide data into train, test and val
-x_train, x_test1, y_train, y_test1 = train_test_split(X, y, test_size=0.3, random_state=42,
+x_train, x_test1, y_train, y_test1 = train_test_split(X, y, test_size=0.3, random_state=3,
                                                       shuffle=True,stratify=y)
 
-x_val, x_test, y_val, y_test = train_test_split(x_test1, y_test1, test_size=0.3, random_state=42,
+x_val, x_test, y_val, y_test = train_test_split(x_test1, y_test1, test_size=0.5, random_state=3,
                                                 shuffle=True,stratify=y_test1)
 print("train and test split completed")
 
