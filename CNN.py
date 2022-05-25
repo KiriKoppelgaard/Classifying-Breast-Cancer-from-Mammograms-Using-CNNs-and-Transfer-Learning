@@ -111,7 +111,7 @@ for model_name in ['cnn_small', 'cnn_medium', 'cnn_large']:
   start_time = datetime.now()
 
   # Fit model
-  history = model.fit(x=x_train,y=y_train, epochs=2, validation_data=(x_val, y_val)) #, callbacks=[callback])
+  history = model.fit(x=x_train,y=y_train, epochs=200, validation_data=(x_val, y_val)) #, callbacks=[callback])
 
   #save environmental impact 
   emissions: float = tracker.stop()
