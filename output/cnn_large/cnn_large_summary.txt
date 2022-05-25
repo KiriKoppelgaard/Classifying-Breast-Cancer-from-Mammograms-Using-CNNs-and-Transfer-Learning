@@ -9,15 +9,20 @@ _________________________________________________________________
                                                                  
  conv2d_1 (Conv2D)           (None, 47, 47, 25)        3625      
                                                                  
- average_pooling2d (AverageP  (None, 23, 23, 25)       0         
+ max_pooling2d_1 (MaxPooling  (None, 23, 23, 25)       0         
+ 2D)                                                             
+                                                                 
+ conv2d_2 (Conv2D)           (None, 21, 21, 36)        8136      
+                                                                 
+ average_pooling2d (AverageP  (None, 10, 10, 36)       0         
  ooling2D)                                                       
                                                                  
- flatten (Flatten)           (None, 13225)             0         
+ flatten (Flatten)           (None, 3600)              0         
                                                                  
- batch_normalization (BatchN  (None, 13225)            52900     
+ batch_normalization (BatchN  (None, 3600)             14400     
  ormalization)                                                   
                                                                  
- dense (Dense)               (None, 100)               1322600   
+ dense (Dense)               (None, 100)               360100    
                                                                  
  dropout (Dropout)           (None, 100)               0         
                                                                  
@@ -28,7 +33,7 @@ _________________________________________________________________
  dense_2 (Dense)             (None, 5)                 325       
                                                                  
 =================================================================
-Total params: 1,386,074
-Trainable params: 1,359,624
-Non-trainable params: 26,450
+Total params: 393,210
+Trainable params: 386,010
+Non-trainable params: 7,200
 _________________________________________________________________
