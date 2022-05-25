@@ -80,7 +80,7 @@ print('Number of images in x_val', x_val.shape[0])
 
 print("starting model loop")
 #create models for hyperparameter comparison
-for model_name in ['cnn_large']: #'cnn_small', 'cnn_medium'
+for model_name in ['cnn_small', 'cnn_medium', 'cnn_large']:
   #Create print
   print(model_name, 'initializing')
 
@@ -137,6 +137,9 @@ for model_name in ['cnn_large']: #'cnn_small', 'cnn_medium'
   clsf_report = pd.DataFrame(classification_report(y_test, y_pred_bool, output_dict=True)).transpose()
   clsf_report.to_csv(f'output/{model_name}/{model_name}_clsf_report.csv', index= True)
 
+  # save history
+  hist_df = pd.DataFrame(history.history)
+  hist_df.to_csv(f'output/{model_name}/{model_name}_history.csv', index= True)
   
   # Visualize history
   # Plot history: Loss
