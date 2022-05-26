@@ -47,10 +47,10 @@ X=np.array(images)
 y=np.array(labels)
 
 #divide data into train, test and val
-x_train, x_test1, y_train, y_test1 = train_test_split(X, y, test_size=0.3, random_state=42,
+x_train, x_test1, y_train, y_test1 = train_test_split(X, y, test_size=0.3, random_state=3,
                                                       shuffle=True,stratify=y)
 
-x_val, x_test, y_val, y_test = train_test_split(x_test1, y_test1, test_size=0.3, random_state=42,
+x_val, x_test, y_val, y_test = train_test_split(x_test1, y_test1, test_size=0.5, random_state=3,
                                                 shuffle=True,stratify=y_test1)
 print("train and test split completed")
 
@@ -80,7 +80,7 @@ print('Number of images in x_val', x_val.shape[0])
 
 print("starting model loop")
 #create models for hyperparameter comparison
-for model_name in ['cnn_large']: #'cnn_small', 'cnn_medium'
+for model_name in ['cnn_large']: # 'cnn_small', 'cnn_medium', 
   #Create print
   print(model_name, 'initializing')
 
@@ -133,13 +133,24 @@ for model_name in ['cnn_large']: #'cnn_small', 'cnn_medium'
   y_pred = model.predict(x_test, batch_size=64, verbose=1)
   y_pred_bool = np.argmax(y_pred, axis=1)
 
+  y_pred_val = model.predict(x_val, batch_size=64, verbose=1)
+  y_pred_bool_val = np.argmax(y_pred_val, axis=1)
+
+
+  #save classification report
+  clsf_report = pd.DataFrame(classification_report(y_val, y_pred_bool_val, output_dict=True)).transpose()
+  clsf_report.to_csv(f'output/{model_name}/{model_name}_clsf_val_report.csv', index= True)
+
   #save classification report
   clsf_report = pd.DataFrame(classification_report(y_test, y_pred_bool, output_dict=True)).transpose()
   clsf_report.to_csv(f'output/{model_name}/{model_name}_clsf_report.csv', index= True)
 
+  # save history
+  hist_df = pd.DataFrame(history.history)
+  hist_df.to_csv(f'output/{model_name}/{model_name}_history.csv', index= True)
   
   # Visualize history
-  # Plot history: Loss
+  # Plot history: Loss  
   plt.plot(np.array(history.history['val_loss']), label = 'Validation Loss')
   plt.plot(np.array(history.history['loss']), label = 'Training Loss')
   plt.title('Validation loss history')
