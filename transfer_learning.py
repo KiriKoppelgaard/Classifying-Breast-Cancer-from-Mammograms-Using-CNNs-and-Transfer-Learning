@@ -1,5 +1,5 @@
 '''
-Script to run the transfer learning models, inceptionv3 and efficientnetv3 medium. 
+Script to run the transfer learning models, inceptionv3 and efficientnetv2s. 
 
 First, the data is prepared. 
 Then, we loop through the two models. 
@@ -12,7 +12,7 @@ After fine-tuning, the models are evaluated and relevant metrics and plots are s
 Transfer learning and fine-tuning code sources
 - https://keras.io/guides/transfer_learning/
 - https://keras.io/api/applications/#usage-examples-for-image-classification-models
-- https://keras.io/api/applications/#inceptionv3 (freezing top blocks + low learning rate)
+- https://keras.io/api/applications/#inceptionv3 (freezing blocks + low learning rate)
 - https://stackabuse.com/image-recognition-in-python-with-tensorflow-and-keras/
 
 '''
@@ -96,7 +96,7 @@ print('Number of images in x_val', x_val.shape[0], ', x_val shape is', x_val.sha
 print('Total number of images:', x_train.shape[0] + x_test.shape[0] + x_val.shape[0])
 
 # prepare names of base models to loop through
-base_models = ['inceptionv3', 'efficientnetv2m']
+base_models = ['inceptionv3'] #, 'efficientnetv2s']
 
 print("starting model loop")
 # fine-tune and evaluate base models
@@ -104,8 +104,8 @@ for base_model in base_models:
   # load current base model (with non-trainable base_model layers)
   if base_model == 'inceptionv3':
     model = transfer_learning_model('inceptionv3', input_shape) 
-  elif base_model == 'efficientnetv2m':
-    model = transfer_learning_model('efficientnetv2m', input_shape) 
+  elif base_model == 'efficientnetv2s':
+    model = transfer_learning_model('efficientnetv2s', input_shape) 
   
   # print model initialisation
   print(base_model, 'initializing')
@@ -129,21 +129,24 @@ for base_model in base_models:
   start_time = datetime.now()
 
   # fit initial model (train on a few epochs before unfreezing two top blocks of base model for fine-tuning)
-  history = model.fit(x=x_train,y=y_train, epochs=150, validation_data=(x_val, y_val))
+  history = model.fit(x=x_train,y=y_train, epochs=2, validation_data=(x_val, y_val))
   print("pre-training completed for", base_model)
 
-  # unfreeze two top blocks og base model, so they can be fine-tuned
-  if base_model == 'inceptionv3':
-    for layer in model.layers[:249]:
-      layer.trainable = False
-    for layer in model.layers[249:]:
-      layer.trainable = True
+  # unfreeze base model for finetuning
+  for layer in model.layers:
+    layer.trainable = True
+  
+  # if base_model == 'inceptionv3':
+  #   for layer in model.layers[:249]:
+  #     layer.trainable = False
+  #   for layer in model.layers[249:]:
+  #     layer.trainable = True
 
-  elif base_model == 'efficientnetv2m':
-    for layer in model.layers[:645]:
-      layer.trainable = False
-    for layer in model.layers[645:]:
-      layer.trainable = True
+  # elif base_model == 'efficientnetv2s':
+  #   for layer in model.layers[:645]:
+  #     layer.trainable = False
+  #   for layer in model.layers[645:]:
+  #     layer.trainable = True
 
   # recompile the model for modifications to take effect - with low learning rate
   model.compile(keras.optimizers.Adam(0.0001), loss='sparse_categorical_crossentropy', metrics = ['accuracy']) 
@@ -154,7 +157,7 @@ for base_model in base_models:
         model.summary()   
 
   # fine-tune model (training two top blocks of base model + fully-connected layers) 
-  history_finetuning = model.fit(x=x_train,y=y_train, epochs=100, validation_data=(x_val, y_val)) #, callbacks=[callback])
+  history_finetuning = model.fit(x=x_train,y=y_train, epochs=2, validation_data=(x_val, y_val)) #, callbacks=[callback])
   print("finetuning completed for", base_model)
 
   #save environmental impact + no. of epochs
