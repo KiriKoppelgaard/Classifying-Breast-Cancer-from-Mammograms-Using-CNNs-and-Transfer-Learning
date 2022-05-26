@@ -130,19 +130,19 @@ def transfer_learning_model(base_model, input_shape):
     """    
     # if we do base_model.summary() we get the details of the base_model layers 
     if base_model == 'inceptionv3':
-            base_model = InceptionV3(
+            bm = InceptionV3(
                 input_shape=input_shape, # define input/image shape
                 weights='imagenet', # include pre-trained weights from training on imagenet
                 include_top=False) # leave out the top/last fully connected layer
             # remove top three blocks
-            x = base_model.layers[228].output 
+            x = bm.layers[228].output 
     elif base_model == 'efficientnetv2s':
-            base_model = EfficientNetV2S(
+            bm = EfficientNetV2S(
                 input_shape=input_shape, # define input/image shape
                 weights='imagenet', # include pre-trained weights from training on imagenet
                 include_top=False) # leave out top/last fully connected layer
             # remove top three blocks
-            x = base_model.layers[645].output
+            x = bm.layers[433].output
     else: 
         "Error: base_model must be either 'inceptionv3' or 'efficientnetv2s"
     
@@ -169,15 +169,14 @@ def transfer_learning_model(base_model, input_shape):
     # freeze all layers in included base_model so we only train only the top layers (randomly initialized)
 
     if base_model == 'inceptionv3':
-        for layer in base_model.layers[:229]:
+        for layer in bm.layers[:229]:
             layer.trainable = False
     elif base_model == 'efficientnetv2s':
-    #     x = base_model.layers[645].output
-        for layer in base_model.layers[:645]:
+        for layer in bm.layers[:434]:
             layer.trainable = False
 
     # collect model
-    model = Model(inputs=base_model.input, outputs=predictions)
+    model = Model(inputs=bm.input, outputs=predictions)
 
 
     return model

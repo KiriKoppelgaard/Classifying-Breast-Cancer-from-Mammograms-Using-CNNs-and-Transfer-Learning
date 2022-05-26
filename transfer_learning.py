@@ -96,7 +96,7 @@ print('Number of images in x_val', x_val.shape[0], ', x_val shape is', x_val.sha
 print('Total number of images:', x_train.shape[0] + x_test.shape[0] + x_val.shape[0])
 
 # prepare names of base models to loop through
-base_models = ['inceptionv3'] #, 'efficientnetv2s']
+base_models = ['inceptionv3', 'efficientnetv2s']
 
 print("starting model loop")
 # fine-tune and evaluate base models
@@ -129,7 +129,7 @@ for base_model in base_models:
   start_time = datetime.now()
 
   # fit initial model (train on a few epochs before unfreezing two top blocks of base model for fine-tuning)
-  history = model.fit(x=x_train,y=y_train, epochs=2, validation_data=(x_val, y_val))
+  history = model.fit(x=x_train,y=y_train, epochs=20, validation_data=(x_val, y_val))
   print("pre-training completed for", base_model)
 
   # unfreeze base model for finetuning
@@ -156,8 +156,9 @@ for base_model in base_models:
     with redirect_stdout(f):
         model.summary()   
 
+  
   # fine-tune model (training two top blocks of base model + fully-connected layers) 
-  history_finetuning = model.fit(x=x_train,y=y_train, epochs=2, validation_data=(x_val, y_val)) #, callbacks=[callback])
+  history_finetuning = model.fit(x=x_train,y=y_train, epochs=200, validation_data=(x_val, y_val)) #, callbacks=[callback])
   print("finetuning completed for", base_model)
 
   #save environmental impact + no. of epochs
@@ -245,8 +246,8 @@ for base_model in base_models:
 
   print("Evaluation and plotting completed for", base_model)
 
-  # pd.DataFrame(history_finetuning.history).plot()
-  # plt.savefig(f'output/{base_model}/{base_model}_finetuning.jpg')
+  #pd.DataFrame(history_finetuning.history).plot()
+  #plt.savefig(f'output/{base_model}/{base_model}_all_in_one_finetuning.jpg')
 
 
   # plot model architecture

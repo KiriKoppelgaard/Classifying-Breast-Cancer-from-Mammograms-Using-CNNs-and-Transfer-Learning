@@ -32,8 +32,10 @@ plot_model(efficientnetv2_base, f'output/efficientnetv2s/efficientnetv2s_base_ar
 for i, layer in enumerate(inceptionv3_base.layers):
     print(i, layer.name)
 
-for i, layer in enumerate(efficientnetv2_base.layers):
+for i, layer in enumerate(efficientnetv2_base.layers): #[:434]):
     print(i, layer.name)
+
+#print(efficientnetv2_base.layers[433])
 
 # save summaries
 with open(f'output/inceptionv3/inceptionv3_base_summary.txt', 'w') as f:
