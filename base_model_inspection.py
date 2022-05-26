@@ -1,5 +1,5 @@
 '''
-Script to inspect the base models, inceptionv3 and efficientnetv2 medium.
+Script to inspect the base models, inceptionv3 and efficientnetv2S.
 It is used to find layer numbers of the layer we need to freeze from, so we can freeze the two top blocks of the base models.
 
 Was run interactively. 

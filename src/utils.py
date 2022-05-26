@@ -3,8 +3,8 @@ from tensorflow import keras
 import cv2
 import sys, os
 from tensorflow.keras.models import Sequential, Model
-from tensorflow.keras.layers import Dense, Conv2D, Dropout, Flatten, MaxPooling2D, AveragePooling2D, BatchNormalization, Activation, GlobalAveragePooling2D
-from tensorflow.keras.applications import InceptionV3, EfficientNetV2M
+from tensorflow.keras.layers import Dense, Conv2D, Dropout, Flatten, MaxPooling2D, AveragePooling2D, BatchNormalization, GlobalAveragePooling2D
+from tensorflow.keras.applications import InceptionV3, EfficientNetV2S
 
 def _parse_function(example):
     """
@@ -123,7 +123,7 @@ def transfer_learning_model(base_model, input_shape):
     starting point from: https://keras.io/api/applications/#inceptionv3
 
     Args:
-        base_model (str): Which base model to use. Either 'inceptionv3' or 'efficientnetv2m'
+        base_model (str): Which base model to use. Either 'inceptionv3' or 'efficientnetv2s'
 
     Returns:
         model: transfer learning model with frozen base_model layers 
@@ -134,78 +134,51 @@ def transfer_learning_model(base_model, input_shape):
                 input_shape=input_shape, # define input/image shape
                 weights='imagenet', # include pre-trained weights from training on imagenet
                 include_top=False) # leave out the top/last fully connected layer
-    elif base_model == 'efficientnetv2m':
-            base_model = EfficientNetV2M(
+            # remove top three blocks
+            x = base_model.layers[228].output 
+    elif base_model == 'efficientnetv2s':
+            base_model = EfficientNetV2S(
                 input_shape=input_shape, # define input/image shape
                 weights='imagenet', # include pre-trained weights from training on imagenet
                 include_top=False) # leave out top/last fully connected layer
+            # remove top three blocks
+            x = base_model.layers[645].output
     else: 
-        "Error: base_model must be either 'inceptionv3' or 'efficientnetv2m"
+        "Error: base_model must be either 'inceptionv3' or 'efficientnetv2s"
     
-    x = base_model.output
-    x = AveragePooling2D(padding='same')(x)  # average pooling layer
-    x = Dropout(0.2)(x) # dropout
-    x = Flatten()(x) # flatten to prepare for fully-connected layers
+    # len(base_model.layers)
+    # base_model.summary()
+    # base_model.layers.pop()
+
+    # remove top three blocks
+    # if base_model == 'inceptionv3':
+    #     x = base_model.layers[228].output 
+    # elif base_model == 'efficientnetv2s':
+    #     x = base_model.layers[645].output
+    
+    x = GlobalAveragePooling2D()(x)  # average pooling layer
+    #x = Dropout(0.2)(x) # dropout
+    # x = Flatten()(x) # flatten to prepare for fully-connected layers
     x = BatchNormalization()(x) # batch normalisation
     x = Dense(100, activation='relu')(x) # fully-connected layer - changed from 256
     x = Dropout(0.2)(x) # dropout
     x = Dense(64, activation='relu')(x) # fully-connected layer - changed from 100
     x = Dropout(0.2)(x) # dropout
-    predictions = Dense(5, activation='softmax')(x) # output layer; five classes
+    predictions = Dense(5, activation='softmax')(x) # output layer; five classes    
 
+    # freeze all layers in included base_model so we only train only the top layers (randomly initialized)
+
+    if base_model == 'inceptionv3':
+        for layer in base_model.layers[:229]:
+            layer.trainable = False
+    elif base_model == 'efficientnetv2s':
+    #     x = base_model.layers[645].output
+        for layer in base_model.layers[:645]:
+            layer.trainable = False
 
     # collect model
     model = Model(inputs=base_model.input, outputs=predictions)
 
-    # freeze all layers in base_model so we only train only the top layers (randomly initialized)
-    for layer in base_model.layers:
-        layer.trainable = False
-    
 
     return model
 
-
-def old_transfer_learning_model(base_model, input_shape): 
-    """
-    A function that defines a transfer learning model 
-
-    Args:
-        base_model (str): Which base model to use. Either 'inceptionv3' or 'efficientnetv2m'
-
-    Returns:
-        _type_: _description_
-    """    
-    # if we do base_model.summary() we get the details of the base_model layers 
-    if base_model == 'inceptionv3':
-            base_model = InceptionV3(
-                input_shape=input_shape, # define input/image shape
-                weights='imagenet', # include pre-trained weights from training on imagenet
-                include_top=False) # leave out the top/last fully connected layer
-    elif base_model == 'efficientnetv2m':
-            base_model = EfficientNetV2M(
-                input_shape=input_shape, # define input/image shape
-                weights='imagenet', # include pre-trained weights from training on imagenet
-                include_top=False) # leave out top/last fully connected layer
-    else: 
-        "Error: base_model must be either 'inceptionv3' or 'efficientnetv2m"
-    
-    model=Sequential() # define model as sequential so we can add layers sequentially 
-    model.add(base_model)  # add base model
-
-    model.add(AveragePooling2D()) # add a global spatial average pooling layer
-    model.add(Dropout(0.2)) # 0.2 dropout 
-    model.add(Flatten()) # flatten to prepare for fully connected layers 
-    model.add(BatchNormalization()) # normalise inputs 
-
-    # add two fully connected layers with 256 nodes, batch normalisation, and relu activation
-    model.add(Dense(256, activation='relu'))
-    model.add(Dropout(0.2))
-    model.add(Dense(100, activation='relu'))
-    model.add(Dropout(0.2)) # dropout 0.2
-    model.add(Dense(5,activation='softmax')) # output layer; five classes
-
-    # freeze all convolutional base_model layers, so we only train the top layers (which were randomly initialized)
-    for layer in base_model.layers:
-        layer.trainable = False # keep weights from pre-training and only update new layers 
-
-    return model
