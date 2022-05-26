@@ -1,36 +1,36 @@
-Model: "sequential"
+Model: "sequential_2"
 _________________________________________________________________
  Layer (type)                Output Shape              Param #   
 =================================================================
- conv2d (Conv2D)             (None, 98, 98, 16)        160       
+ conv2d_3 (Conv2D)           (None, 98, 98, 16)        160       
                                                                  
- max_pooling2d (MaxPooling2D  (None, 49, 49, 16)       0         
- )                                                               
-                                                                 
- conv2d_1 (Conv2D)           (None, 47, 47, 25)        3625      
-                                                                 
- max_pooling2d_1 (MaxPooling  (None, 23, 23, 25)       0         
+ max_pooling2d_1 (MaxPooling  (None, 49, 49, 16)       0         
  2D)                                                             
                                                                  
- conv2d_2 (Conv2D)           (None, 21, 21, 36)        8136      
+ conv2d_4 (Conv2D)           (None, 47, 47, 25)        3625      
                                                                  
- average_pooling2d (AverageP  (None, 10, 10, 36)       0         
- ooling2D)                                                       
+ max_pooling2d_2 (MaxPooling  (None, 23, 23, 25)       0         
+ 2D)                                                             
                                                                  
- flatten (Flatten)           (None, 3600)              0         
+ conv2d_5 (Conv2D)           (None, 21, 21, 36)        8136      
                                                                  
- batch_normalization (BatchN  (None, 3600)             14400     
- ormalization)                                                   
+ average_pooling2d_2 (Averag  (None, 10, 10, 36)       0         
+ ePooling2D)                                                     
                                                                  
- dense (Dense)               (None, 100)               360100    
+ flatten_2 (Flatten)         (None, 3600)              0         
                                                                  
- dropout (Dropout)           (None, 100)               0         
+ batch_normalization_2 (Batc  (None, 3600)             14400     
+ hNormalization)                                                 
                                                                  
- dense_1 (Dense)             (None, 64)                6464      
+ dense_6 (Dense)             (None, 100)               360100    
                                                                  
- dropout_1 (Dropout)         (None, 64)                0         
+ dropout_4 (Dropout)         (None, 100)               0         
                                                                  
- dense_2 (Dense)             (None, 5)                 325       
+ dense_7 (Dense)             (None, 64)                6464      
+                                                                 
+ dropout_5 (Dropout)         (None, 64)                0         
+                                                                 
+ dense_8 (Dense)             (None, 5)                 325       
                                                                  
 =================================================================
 Total params: 393,210
