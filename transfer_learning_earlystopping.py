@@ -118,10 +118,10 @@ for base_model in base_models:
   # define callback (for early stopping)
   #callback = EarlyStopping(monitor='val_loss', patience=10)
   es_frozen = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=20)
-  mc_frozen = ModelCheckpoint(f'output/tles/{base_model}/best_model_frozen', monitor='val_loss', mode='min', verbose=1, save_best_only=True)
+  mc_frozen = ModelCheckpoint(f'output/tles/{base_model}/best_model_frozen.h5', monitor='val_loss', mode='min', verbose=1, save_best_only=True)
 
   es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=50)
-  mc = ModelCheckpoint(f'output/tles/{base_model}/best_model', monitor='val_loss', mode='min', verbose=1, save_best_only=True)
+  mc = ModelCheckpoint(f'output/tles/{base_model}/best_model.h5', monitor='val_loss', mode='min', verbose=1, save_best_only=True)
 
   # compile model
   model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics = ['accuracy'])
@@ -140,7 +140,7 @@ for base_model in base_models:
   print("pre-training completed for", base_model)
 
   # load best frozen model for finetuning
-  model = load_model(f'output/tles/{base_model}/best_model_frozen')
+  model = load_model(f'output/tles/{base_model}/best_model_frozen.h5')
 
   # unfreeze base model for finetuning
   for layer in model.layers:
@@ -172,10 +172,10 @@ for base_model in base_models:
       fd.write(f'Emissions for {base_model}: {emissions} kg,  Duration: {end_time - start_time}, No. of epochs run: {no_epochs};')
 
   # load the saved model
-  saved_model = load_model(f'output/tles/{base_model}/best_model')
+  model = load_model(f'output/tles/{base_model}/best_model.h5')
   # evaluate the model
-  _, train_acc = saved_model.evaluate(x_train, y_train, verbose=0)
-  _, test_acc = saved_model.evaluate(x_test, y_test, verbose=0)
+  _, train_acc = model.evaluate(x_train, y_train, verbose=0)
+  _, test_acc = model.evaluate(x_test, y_test, verbose=0)
   print('Train: %.3f, Test: %.3f' % (train_acc, test_acc))    
   # evaluate model  
   #model.evaluate(x_test, y_test)
