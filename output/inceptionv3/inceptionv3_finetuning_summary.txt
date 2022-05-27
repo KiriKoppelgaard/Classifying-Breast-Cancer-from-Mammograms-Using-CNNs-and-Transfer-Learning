@@ -561,230 +561,24 @@ ________________________________________________________________________________
                                                                   'activation_68[0][0]',          
                                                                   'activation_69[0][0]']          
                                                                                                   
- conv2d_72 (Conv2D)             (None, 4, 4, 192)    147456      ['mixed7[0][0]']                 
+ global_average_pooling2d (Glob  (None, 768)         0           ['mixed7[0][0]']                 
+ alAveragePooling2D)                                                                              
                                                                                                   
- batch_normalization_72 (BatchN  (None, 4, 4, 192)   576         ['conv2d_72[0][0]']              
- ormalization)                                                                                    
+ batch_normalization_94 (BatchN  (None, 768)         3072        ['global_average_pooling2d[0][0]'
+ ormalization)                                                   ]                                
                                                                                                   
- activation_72 (Activation)     (None, 4, 4, 192)    0           ['batch_normalization_72[0][0]'] 
+ dense (Dense)                  (None, 100)          76900       ['batch_normalization_94[0][0]'] 
                                                                                                   
- conv2d_73 (Conv2D)             (None, 4, 4, 192)    258048      ['activation_72[0][0]']          
+ dropout (Dropout)              (None, 100)          0           ['dense[0][0]']                  
                                                                                                   
- batch_normalization_73 (BatchN  (None, 4, 4, 192)   576         ['conv2d_73[0][0]']              
- ormalization)                                                                                    
+ dense_1 (Dense)                (None, 64)           6464        ['dropout[0][0]']                
                                                                                                   
- activation_73 (Activation)     (None, 4, 4, 192)    0           ['batch_normalization_73[0][0]'] 
+ dropout_1 (Dropout)            (None, 64)           0           ['dense_1[0][0]']                
                                                                                                   
- conv2d_70 (Conv2D)             (None, 4, 4, 192)    147456      ['mixed7[0][0]']                 
-                                                                                                  
- conv2d_74 (Conv2D)             (None, 4, 4, 192)    258048      ['activation_73[0][0]']          
-                                                                                                  
- batch_normalization_70 (BatchN  (None, 4, 4, 192)   576         ['conv2d_70[0][0]']              
- ormalization)                                                                                    
-                                                                                                  
- batch_normalization_74 (BatchN  (None, 4, 4, 192)   576         ['conv2d_74[0][0]']              
- ormalization)                                                                                    
-                                                                                                  
- activation_70 (Activation)     (None, 4, 4, 192)    0           ['batch_normalization_70[0][0]'] 
-                                                                                                  
- activation_74 (Activation)     (None, 4, 4, 192)    0           ['batch_normalization_74[0][0]'] 
-                                                                                                  
- conv2d_71 (Conv2D)             (None, 1, 1, 320)    552960      ['activation_70[0][0]']          
-                                                                                                  
- conv2d_75 (Conv2D)             (None, 1, 1, 192)    331776      ['activation_74[0][0]']          
-                                                                                                  
- batch_normalization_71 (BatchN  (None, 1, 1, 320)   960         ['conv2d_71[0][0]']              
- ormalization)                                                                                    
-                                                                                                  
- batch_normalization_75 (BatchN  (None, 1, 1, 192)   576         ['conv2d_75[0][0]']              
- ormalization)                                                                                    
-                                                                                                  
- activation_71 (Activation)     (None, 1, 1, 320)    0           ['batch_normalization_71[0][0]'] 
-                                                                                                  
- activation_75 (Activation)     (None, 1, 1, 192)    0           ['batch_normalization_75[0][0]'] 
-                                                                                                  
- max_pooling2d_3 (MaxPooling2D)  (None, 1, 1, 768)   0           ['mixed7[0][0]']                 
-                                                                                                  
- mixed8 (Concatenate)           (None, 1, 1, 1280)   0           ['activation_71[0][0]',          
-                                                                  'activation_75[0][0]',          
-                                                                  'max_pooling2d_3[0][0]']        
-                                                                                                  
- conv2d_80 (Conv2D)             (None, 1, 1, 448)    573440      ['mixed8[0][0]']                 
-                                                                                                  
- batch_normalization_80 (BatchN  (None, 1, 1, 448)   1344        ['conv2d_80[0][0]']              
- ormalization)                                                                                    
-                                                                                                  
- activation_80 (Activation)     (None, 1, 1, 448)    0           ['batch_normalization_80[0][0]'] 
-                                                                                                  
- conv2d_77 (Conv2D)             (None, 1, 1, 384)    491520      ['mixed8[0][0]']                 
-                                                                                                  
- conv2d_81 (Conv2D)             (None, 1, 1, 384)    1548288     ['activation_80[0][0]']          
-                                                                                                  
- batch_normalization_77 (BatchN  (None, 1, 1, 384)   1152        ['conv2d_77[0][0]']              
- ormalization)                                                                                    
-                                                                                                  
- batch_normalization_81 (BatchN  (None, 1, 1, 384)   1152        ['conv2d_81[0][0]']              
- ormalization)                                                                                    
-                                                                                                  
- activation_77 (Activation)     (None, 1, 1, 384)    0           ['batch_normalization_77[0][0]'] 
-                                                                                                  
- activation_81 (Activation)     (None, 1, 1, 384)    0           ['batch_normalization_81[0][0]'] 
-                                                                                                  
- conv2d_78 (Conv2D)             (None, 1, 1, 384)    442368      ['activation_77[0][0]']          
-                                                                                                  
- conv2d_79 (Conv2D)             (None, 1, 1, 384)    442368      ['activation_77[0][0]']          
-                                                                                                  
- conv2d_82 (Conv2D)             (None, 1, 1, 384)    442368      ['activation_81[0][0]']          
-                                                                                                  
- conv2d_83 (Conv2D)             (None, 1, 1, 384)    442368      ['activation_81[0][0]']          
-                                                                                                  
- average_pooling2d_7 (AveragePo  (None, 1, 1, 1280)  0           ['mixed8[0][0]']                 
- oling2D)                                                                                         
-                                                                                                  
- conv2d_76 (Conv2D)             (None, 1, 1, 320)    409600      ['mixed8[0][0]']                 
-                                                                                                  
- batch_normalization_78 (BatchN  (None, 1, 1, 384)   1152        ['conv2d_78[0][0]']              
- ormalization)                                                                                    
-                                                                                                  
- batch_normalization_79 (BatchN  (None, 1, 1, 384)   1152        ['conv2d_79[0][0]']              
- ormalization)                                                                                    
-                                                                                                  
- batch_normalization_82 (BatchN  (None, 1, 1, 384)   1152        ['conv2d_82[0][0]']              
- ormalization)                                                                                    
-                                                                                                  
- batch_normalization_83 (BatchN  (None, 1, 1, 384)   1152        ['conv2d_83[0][0]']              
- ormalization)                                                                                    
-                                                                                                  
- conv2d_84 (Conv2D)             (None, 1, 1, 192)    245760      ['average_pooling2d_7[0][0]']    
-                                                                                                  
- batch_normalization_76 (BatchN  (None, 1, 1, 320)   960         ['conv2d_76[0][0]']              
- ormalization)                                                                                    
-                                                                                                  
- activation_78 (Activation)     (None, 1, 1, 384)    0           ['batch_normalization_78[0][0]'] 
-                                                                                                  
- activation_79 (Activation)     (None, 1, 1, 384)    0           ['batch_normalization_79[0][0]'] 
-                                                                                                  
- activation_82 (Activation)     (None, 1, 1, 384)    0           ['batch_normalization_82[0][0]'] 
-                                                                                                  
- activation_83 (Activation)     (None, 1, 1, 384)    0           ['batch_normalization_83[0][0]'] 
-                                                                                                  
- batch_normalization_84 (BatchN  (None, 1, 1, 192)   576         ['conv2d_84[0][0]']              
- ormalization)                                                                                    
-                                                                                                  
- activation_76 (Activation)     (None, 1, 1, 320)    0           ['batch_normalization_76[0][0]'] 
-                                                                                                  
- mixed9_0 (Concatenate)         (None, 1, 1, 768)    0           ['activation_78[0][0]',          
-                                                                  'activation_79[0][0]']          
-                                                                                                  
- concatenate (Concatenate)      (None, 1, 1, 768)    0           ['activation_82[0][0]',          
-                                                                  'activation_83[0][0]']          
-                                                                                                  
- activation_84 (Activation)     (None, 1, 1, 192)    0           ['batch_normalization_84[0][0]'] 
-                                                                                                  
- mixed9 (Concatenate)           (None, 1, 1, 2048)   0           ['activation_76[0][0]',          
-                                                                  'mixed9_0[0][0]',               
-                                                                  'concatenate[0][0]',            
-                                                                  'activation_84[0][0]']          
-                                                                                                  
- conv2d_89 (Conv2D)             (None, 1, 1, 448)    917504      ['mixed9[0][0]']                 
-                                                                                                  
- batch_normalization_89 (BatchN  (None, 1, 1, 448)   1344        ['conv2d_89[0][0]']              
- ormalization)                                                                                    
-                                                                                                  
- activation_89 (Activation)     (None, 1, 1, 448)    0           ['batch_normalization_89[0][0]'] 
-                                                                                                  
- conv2d_86 (Conv2D)             (None, 1, 1, 384)    786432      ['mixed9[0][0]']                 
-                                                                                                  
- conv2d_90 (Conv2D)             (None, 1, 1, 384)    1548288     ['activation_89[0][0]']          
-                                                                                                  
- batch_normalization_86 (BatchN  (None, 1, 1, 384)   1152        ['conv2d_86[0][0]']              
- ormalization)                                                                                    
-                                                                                                  
- batch_normalization_90 (BatchN  (None, 1, 1, 384)   1152        ['conv2d_90[0][0]']              
- ormalization)                                                                                    
-                                                                                                  
- activation_86 (Activation)     (None, 1, 1, 384)    0           ['batch_normalization_86[0][0]'] 
-                                                                                                  
- activation_90 (Activation)     (None, 1, 1, 384)    0           ['batch_normalization_90[0][0]'] 
-                                                                                                  
- conv2d_87 (Conv2D)             (None, 1, 1, 384)    442368      ['activation_86[0][0]']          
-                                                                                                  
- conv2d_88 (Conv2D)             (None, 1, 1, 384)    442368      ['activation_86[0][0]']          
-                                                                                                  
- conv2d_91 (Conv2D)             (None, 1, 1, 384)    442368      ['activation_90[0][0]']          
-                                                                                                  
- conv2d_92 (Conv2D)             (None, 1, 1, 384)    442368      ['activation_90[0][0]']          
-                                                                                                  
- average_pooling2d_8 (AveragePo  (None, 1, 1, 2048)  0           ['mixed9[0][0]']                 
- oling2D)                                                                                         
-                                                                                                  
- conv2d_85 (Conv2D)             (None, 1, 1, 320)    655360      ['mixed9[0][0]']                 
-                                                                                                  
- batch_normalization_87 (BatchN  (None, 1, 1, 384)   1152        ['conv2d_87[0][0]']              
- ormalization)                                                                                    
-                                                                                                  
- batch_normalization_88 (BatchN  (None, 1, 1, 384)   1152        ['conv2d_88[0][0]']              
- ormalization)                                                                                    
-                                                                                                  
- batch_normalization_91 (BatchN  (None, 1, 1, 384)   1152        ['conv2d_91[0][0]']              
- ormalization)                                                                                    
-                                                                                                  
- batch_normalization_92 (BatchN  (None, 1, 1, 384)   1152        ['conv2d_92[0][0]']              
- ormalization)                                                                                    
-                                                                                                  
- conv2d_93 (Conv2D)             (None, 1, 1, 192)    393216      ['average_pooling2d_8[0][0]']    
-                                                                                                  
- batch_normalization_85 (BatchN  (None, 1, 1, 320)   960         ['conv2d_85[0][0]']              
- ormalization)                                                                                    
-                                                                                                  
- activation_87 (Activation)     (None, 1, 1, 384)    0           ['batch_normalization_87[0][0]'] 
-                                                                                                  
- activation_88 (Activation)     (None, 1, 1, 384)    0           ['batch_normalization_88[0][0]'] 
-                                                                                                  
- activation_91 (Activation)     (None, 1, 1, 384)    0           ['batch_normalization_91[0][0]'] 
-                                                                                                  
- activation_92 (Activation)     (None, 1, 1, 384)    0           ['batch_normalization_92[0][0]'] 
-                                                                                                  
- batch_normalization_93 (BatchN  (None, 1, 1, 192)   576         ['conv2d_93[0][0]']              
- ormalization)                                                                                    
-                                                                                                  
- activation_85 (Activation)     (None, 1, 1, 320)    0           ['batch_normalization_85[0][0]'] 
-                                                                                                  
- mixed9_1 (Concatenate)         (None, 1, 1, 768)    0           ['activation_87[0][0]',          
-                                                                  'activation_88[0][0]']          
-                                                                                                  
- concatenate_1 (Concatenate)    (None, 1, 1, 768)    0           ['activation_91[0][0]',          
-                                                                  'activation_92[0][0]']          
-                                                                                                  
- activation_93 (Activation)     (None, 1, 1, 192)    0           ['batch_normalization_93[0][0]'] 
-                                                                                                  
- mixed10 (Concatenate)          (None, 1, 1, 2048)   0           ['activation_85[0][0]',          
-                                                                  'mixed9_1[0][0]',               
-                                                                  'concatenate_1[0][0]',          
-                                                                  'activation_93[0][0]']          
-                                                                                                  
- average_pooling2d_9 (AveragePo  (None, 1, 1, 2048)  0           ['mixed10[0][0]']                
- oling2D)                                                                                         
-                                                                                                  
- dropout (Dropout)              (None, 1, 1, 2048)   0           ['average_pooling2d_9[0][0]']    
-                                                                                                  
- flatten (Flatten)              (None, 2048)         0           ['dropout[0][0]']                
-                                                                                                  
- batch_normalization_94 (BatchN  (None, 2048)        8192        ['flatten[0][0]']                
- ormalization)                                                                                    
-                                                                                                  
- dense (Dense)                  (None, 100)          204900      ['batch_normalization_94[0][0]'] 
-                                                                                                  
- dropout_1 (Dropout)            (None, 100)          0           ['dense[0][0]']                  
-                                                                                                  
- dense_1 (Dense)                (None, 64)           6464        ['dropout_1[0][0]']              
-                                                                                                  
- dropout_2 (Dropout)            (None, 64)           0           ['dense_1[0][0]']                
-                                                                                                  
- dense_2 (Dense)                (None, 5)            325         ['dropout_2[0][0]']              
+ dense_2 (Dense)                (None, 5)            325         ['dropout_1[0][0]']              
                                                                                                   
 ==================================================================================================
-Total params: 22,022,665
-Trainable params: 11,330,665
-Non-trainable params: 10,692,000
+Total params: 9,062,025
+Trainable params: 9,041,673
+Non-trainable params: 20,352
 __________________________________________________________________________________________________
