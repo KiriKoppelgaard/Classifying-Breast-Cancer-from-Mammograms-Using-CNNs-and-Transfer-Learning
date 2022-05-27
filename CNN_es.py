@@ -102,7 +102,7 @@ for model_name in ['cnn_large']: # 'cnn_small', 'cnn_medium',
   # define callback (for early stopping)
   #callback = EarlyStopping(monitor='val_loss', patience=10)
   es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=50)
-  mc = ModelCheckpoint(f'output/tles/{base_model}/best_model', monitor='val_loss', mode='min', verbose=1, save_best_only=True)
+  mc = ModelCheckpoint(f'output/tles/{model_name}/best_model', monitor='val_loss', mode='min', verbose=1, save_best_only=True)
   
   
   
@@ -135,7 +135,8 @@ for model_name in ['cnn_large']: # 'cnn_small', 'cnn_medium',
       fd.write(f'Emissions for {model_name}: {emissions} kg,  Duration: {end_time - start_time}, No. of epochs run: {no_epochs};')
 
   # load the saved model
-  model = load_model(f'output/tles/{base_model}/best_model')
+  model = load_model(f'output/tles/{
+}/best_model')
   # evaluate the model
   _, train_acc = model.evaluate(x_train, y_train, verbose=0)
   _, test_acc = model.evaluate(x_test, y_test, verbose=0)
