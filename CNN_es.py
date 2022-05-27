@@ -108,7 +108,7 @@ for model_name in ['cnn_large']: # 'cnn_small', 'cnn_medium',
   model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics = ['accuracy'])
 
   #save model parameters 
-  with open(f'output/{model_name}/{model_name}_summary.txt', 'w') as f:
+  with open(f'output/tles/{model_name}/{model_name}_summary.txt', 'w') as f:
     with redirect_stdout(f):
         model.summary()
 
@@ -122,7 +122,7 @@ for model_name in ['cnn_large']: # 'cnn_small', 'cnn_medium',
   #save environmental impact 
   emissions: float = tracker.stop()
   end_time = datetime.now()
-  co2_path = os.path.join(root_dir,'output', 'co2emissions.csv')
+  co2_path = os.path.join(root_dir,'output', 'tles','co2emissions.csv')
   no_epochs = len(history.history['val_loss'])
 
   if exists(co2_path): 
@@ -151,15 +151,15 @@ for model_name in ['cnn_large']: # 'cnn_small', 'cnn_medium',
 
   #save classification report
   clsf_report = pd.DataFrame(classification_report(y_val, y_pred_bool_val, output_dict=True)).transpose()
-  clsf_report.to_csv(f'output/{model_name}/{model_name}_clsf_val_report.csv', index= True)
+  clsf_report.to_csv(f'output/tles/{model_name}/{model_name}_clsf_val_report.csv', index= True)
 
   #save classification report
   clsf_report = pd.DataFrame(classification_report(y_test, y_pred_bool, output_dict=True)).transpose()
-  clsf_report.to_csv(f'output/{model_name}/{model_name}_clsf_report.csv', index= True)
+  clsf_report.to_csv(f'output/tles/{model_name}/{model_name}_clsf_report.csv', index= True)
 
   # save history
   hist_df = pd.DataFrame(history.history)
-  hist_df.to_csv(f'output/{model_name}/{model_name}_history.csv', index= True)
+  hist_df.to_csv(f'output/tles/{model_name}/{model_name}_history.csv', index= True)
   
   # Visualize history
   # Plot history: Loss  
@@ -169,7 +169,7 @@ for model_name in ['cnn_large']: # 'cnn_small', 'cnn_medium',
   plt.ylabel('Loss value')
   plt.xlabel('No. epoch')
   plt.legend(loc="upper right")
-  plt.savefig(f'output/{model_name}/{model_name}_loss.jpg')
+  plt.savefig(f'output/tles/{model_name}/{model_name}_loss.jpg')
   plt.clf()
 
   # Plot history: Accuracy
@@ -179,7 +179,7 @@ for model_name in ['cnn_large']: # 'cnn_small', 'cnn_medium',
   plt.ylabel('Accuracy value (%)')
   plt.xlabel('No. epoch')
   plt.legend(loc="upper left")
-  plt.savefig(f'output/{model_name}/{model_name}_accuracy.jpg')
+  plt.savefig(f'output/tles/{model_name}/{model_name}_accuracy.jpg')
   plt.clf()
 
   #create confusion matrix
@@ -192,7 +192,7 @@ for model_name in ['cnn_large']: # 'cnn_small', 'cnn_medium',
   ax.xaxis.set_ticklabels(['negative', 'benign calcification', 'benign mass', 'malignant calcification', 'malignant mass'], rotation = 90); 
   ax.yaxis.set_ticklabels(['negative', 'benign calcification', 'benign mass', 'malignant calcification', 'malignant mass'], rotation = 0);
   figure = svm.get_figure()
-  figure.savefig(f'output/{model_name}/{model_name}_confusion_matrix.png', bbox_inches = 'tight') 
+  figure.savefig(f'output/tles/{model_name}/{model_name}_confusion_matrix.png', bbox_inches = 'tight') 
 
   #plot model architecture
   #plot_model(model, f'output/{model_name}/{model_name}_architecture.png', show_shapes=True)
