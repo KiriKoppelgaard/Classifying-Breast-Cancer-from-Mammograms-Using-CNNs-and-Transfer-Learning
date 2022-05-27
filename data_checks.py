@@ -26,6 +26,22 @@ print("val_labels")
 print(np.unique(val_labels))
 print(np.bincount(val_labels))
 
+
+print("train_labels")
+print(np.unique(y_train))
+print(np.bincount(y_train))
+
+print("test_labels")
+print(np.unique(y_test))
+print(np.bincount(y_test))
+
+
+print("val_labels")
+print(np.unique(y_val))
+print(np.bincount(y_val))
+
+
+
 # plot images
 image_index = 1
 print("test label: ", test_labels[image_index]) # The label is 8
@@ -117,8 +133,17 @@ print(len(images))
 print(len(labels))
 
 #divide data into train and test
-x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=0,shuffle=True,stratify=y)
+x_train, x_test1, y_train, y_test1 = train_test_split(X, y, test_size=0.4, random_state=3,
+                                                      shuffle=True,stratify=y)
+
+x_val, x_test, y_val, y_test = train_test_split(x_test1, y_test1, test_size=0.5, random_state=3,
+                                                shuffle=True,stratify=y_test1)
 print(x_train.shape, x_test.shape, y_train.shape, y_test.shape)
+
+
+
+
+
 
 #(x_train_mnist, y_train_mnist), (x_test_mnist, y_test_mnist) = tf.keras.datasets.mnist.load_data()
 #print(x_train_mnist.shape, x_test_mnist.shape, y_train_mnist.shape, y_test_mnist.shape)
