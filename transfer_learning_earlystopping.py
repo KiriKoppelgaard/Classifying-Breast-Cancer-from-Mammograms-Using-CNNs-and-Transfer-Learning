@@ -136,7 +136,7 @@ for base_model in base_models:
   start_time = datetime.now()
 
   # fit initial model (train on a few epochs before unfreezing two top blocks of base model for fine-tuning)
-  history = model.fit(x=x_train,y=y_train, epochs=20, validation_data=(x_val, y_val),callbacks=[es_frozen, mc_frozen],verbose=1))
+  history = model.fit(x=x_train,y=y_train, epochs=20, validation_data=(x_val, y_val),callbacks=[es_frozen, mc_frozen],verbose=1)
   print("pre-training completed for", base_model)
 
   # load best frozen model for finetuning
