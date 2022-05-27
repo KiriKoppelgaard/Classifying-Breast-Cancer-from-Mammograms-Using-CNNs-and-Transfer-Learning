@@ -6,7 +6,7 @@ from keras.models import load_model
 import os 
 from os.path import exists
 import numpy as np
-from sklearn.model_selection import *f
+from sklearn.model_selection import *
 from keras.utils.vis_utils import plot_model
 from contextlib import redirect_stdout
 import pandas as pd
