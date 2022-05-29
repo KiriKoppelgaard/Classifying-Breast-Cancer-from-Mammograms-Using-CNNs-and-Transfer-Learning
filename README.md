@@ -1,8 +1,8 @@
-# CNN and breast cancer
+# Classifying Breast Cancer from Mammograms Using CNNs and Transfer Learning
 
 This is the code for our data science exam, Spring 2022.
 
-We use the DDSM dataset (https://www.kaggle.com/datasets/skooch/ddsm-mammography). 
+We use the DDSM and CBIS-DDSM dataset (https://www.kaggle.com/datasets/skooch/ddsm-mammography). 
 
 / Kiri Koppelgaard and Signe Kirk Brødbæk, MSc in Information Technology (Cognitive Science), Aarhus University
 May 31, 2022
