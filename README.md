@@ -1,6 +1,6 @@
 # CNN and breast cancer
 
-This is the code for our data science exam, Spring 2022. The full rapport
+This is the code for our data science exam, Spring 2022.
 
 We use the DDSM dataset (https://www.kaggle.com/datasets/skooch/ddsm-mammography). 
 
