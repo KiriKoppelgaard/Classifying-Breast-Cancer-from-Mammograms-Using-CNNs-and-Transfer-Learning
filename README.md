@@ -12,9 +12,7 @@ Worldwide, breast cancer is the one of the most common cancers with over two mil
 
 <i> Key words: Mammography, Breast Cancer, CNNs, Transfer Learning, DDSM, CBIS-DDSM </i>
 
-
-
-To run: 
+## To run: 
 - pip install -r requirements.txt
 - python CNN.py 
 - python transfer_learning.py
