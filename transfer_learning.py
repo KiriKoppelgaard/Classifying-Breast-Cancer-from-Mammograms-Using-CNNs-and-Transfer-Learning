@@ -118,16 +118,16 @@ for base_model in base_models:
   # define callback (for early stopping)
   #callback = EarlyStopping(monitor='val_loss', patience=10)
   es_frozen = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=20)
-  mc_frozen = ModelCheckpoint(f'output/tles/{base_model}/best_model_frozen.h5', monitor='val_loss', mode='min', verbose=1, save_best_only=True)
+  mc_frozen = ModelCheckpoint(f'output/{base_model}/best_model_frozen.h5', monitor='val_loss', mode='min', verbose=1, save_best_only=True)
 
   es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=50)
-  mc = ModelCheckpoint(f'output/tles/{base_model}/best_model.h5', monitor='val_loss', mode='min', verbose=1, save_best_only=True)
+  mc = ModelCheckpoint(f'output/{base_model}/best_model.h5', monitor='val_loss', mode='min', verbose=1, save_best_only=True)
 
   # compile model
   model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics = ['accuracy'])
 
   # save model parameters with frozen base_model
-  with open(f'output/tles/{base_model}/{base_model}_frozen_summary.txt', 'w') as f:
+  with open(f'output/{base_model}/{base_model}_frozen_summary.txt', 'w') as f:
     with redirect_stdout(f):
         model.summary()
 
@@ -140,7 +140,7 @@ for base_model in base_models:
   print("pre-training completed for", base_model)
 
   # load best frozen model for finetuning
-  model = load_model(f'output/tles/{base_model}/best_model_frozen.h5')
+  model = load_model(f'output/{base_model}/best_model_frozen.h5')
 
   # unfreeze base model for finetuning
   for layer in model.layers:
@@ -150,7 +150,7 @@ for base_model in base_models:
   model.compile(keras.optimizers.Adam(0.0001), loss='sparse_categorical_crossentropy', metrics = ['accuracy']) 
 
   # save model parameters with unfrozen top blocks of base_model
-  with open(f'output/tles/{base_model}/{base_model}_finetuning_summary.txt', 'w') as f:
+  with open(f'output/{base_model}/{base_model}_finetuning_summary.txt', 'w') as f:
     with redirect_stdout(f):
         model.summary()   
   
@@ -161,7 +161,7 @@ for base_model in base_models:
   #save environmental impact + no. of epochs
   emissions: float = tracker.stop()
   end_time = datetime.now()
-  path = os.path.join(root_dir,'output', 'tles','co2emissions.csv')
+  path = os.path.join(root_dir,'output', 'co2emissions.csv')
   no_epochs = len(history.history['val_loss'])
 
   if exists(path): 
@@ -172,7 +172,7 @@ for base_model in base_models:
       fd.write(f'Emissions for {base_model}: {emissions} kg,  Duration: {end_time - start_time}, No. of epochs run: {no_epochs};')
 
   # load the saved model
-  model = load_model(f'output/tles/{base_model}/best_model.h5')
+  model = load_model(f'output/{base_model}/best_model.h5')
   # evaluate the model
   _, train_acc = model.evaluate(x_train, y_train, verbose=0)
   _, test_acc = model.evaluate(x_test, y_test, verbose=0)
@@ -186,15 +186,15 @@ for base_model in base_models:
 
   # save classification report
   clsf_report = pd.DataFrame(classification_report(y_test, y_pred_bool, output_dict=True)).transpose()
-  clsf_report.to_csv(f'output/tles/{base_model}/{base_model}_clsf_report.csv', index= True)
+  clsf_report.to_csv(f'output/{base_model}/{base_model}_clsf_report.csv', index= True)
 
   # save history
   hist_df = pd.DataFrame(history.history)
-  hist_df.to_csv(f'output/tles/{base_model}/{base_model}_history.csv', index= True)
+  hist_df.to_csv(f'output/{base_model}/{base_model}_history.csv', index= True)
           
   # save history
   hist_finetuning_df = pd.DataFrame(history_finetuning.history)
-  hist_finetuning_df.to_csv(f'output/tles/{base_model}/{base_model}_history_finetuning.csv', index= True)
+  hist_finetuning_df.to_csv(f'output/{base_model}/{base_model}_history_finetuning.csv', index= True)
 
 # plot frozen history: loss
   plt.plot(np.array(history.history['val_loss']), label = 'Validation Loss')
@@ -203,7 +203,7 @@ for base_model in base_models:
   plt.ylabel('Loss value')
   plt.xlabel('No. epoch')
   plt.legend(loc="upper right")
-  plt.savefig(f'output/tles/{base_model}/{base_model}_frozen_loss.jpg')
+  plt.savefig(f'output/{base_model}/{base_model}_frozen_loss.jpg')
   plt.clf()
 
   # plot frozen history: accuracy
@@ -213,7 +213,7 @@ for base_model in base_models:
   plt.ylabel('Accuracy value (%)')
   plt.xlabel('No. epoch')
   plt.legend(loc="upper left")
-  plt.savefig(f'output/tles/{base_model}/{base_model}_frozen_accuracy.jpg')
+  plt.savefig(f'output/{base_model}/{base_model}_frozen_accuracy.jpg')
   plt.clf()
 
   # plot finetuning history: loss
@@ -223,7 +223,7 @@ for base_model in base_models:
   plt.ylabel('Loss value')
   plt.xlabel('No. epoch')
   plt.legend(loc="upper right")
-  plt.savefig(f'output/tles/{base_model}/{base_model}_loss.jpg')
+  plt.savefig(f'output/{base_model}/{base_model}_loss.jpg')
   plt.clf()
 
   # plot finetuning history: accuracy
@@ -233,7 +233,7 @@ for base_model in base_models:
   plt.ylabel('Accuracy value (%)')
   plt.xlabel('No. epoch')
   plt.legend(loc="upper left")
-  plt.savefig(f'output/tles/{base_model}/{base_model}_accuracy.jpg')
+  plt.savefig(f'output/{base_model}/{base_model}_accuracy.jpg')
   plt.clf()
 
   # create confusion matrix
@@ -245,7 +245,7 @@ for base_model in base_models:
   ax.xaxis.set_ticklabels(['negative', 'benign calcification', 'benign mass', 'malignant calcification', 'malignant mass'], rotation = 90); 
   ax.yaxis.set_ticklabels(['negative', 'benign calcification', 'benign mass', 'malignant calcification', 'malignant mass'], rotation = 0);
   figure = svm.get_figure()
-  figure.savefig(f'output/tles/{base_model}/{base_model}_confusion_matrix.png', bbox_inches = 'tight') 
+  figure.savefig(f'output/{base_model}/{base_model}_confusion_matrix.png', bbox_inches = 'tight') 
 
   print("Evaluation and plotting completed for", base_model)
 
