@@ -1,6 +1,6 @@
 # CNN and breast cancer
 
-This is the code for our data science exam, Spring 2022. 
+This is the code for our data science exam, Spring 2022. The full rapport
 
 We use the DDSM dataset (https://www.kaggle.com/datasets/skooch/ddsm-mammography). 
 
@@ -8,11 +8,7 @@ We use the DDSM dataset (https://www.kaggle.com/datasets/skooch/ddsm-mammography
 
 May 31, 2022
 
-To run on UCloud: 
-cd ds-exam/DataScienceExam
-
-pip install -r requirements.txt
-
-bash setup_git.sh
-
-python CNN.py 
+To run: 
+- pip install -r requirements.txt
+- python CNN.py 
+- python transfer_learning.py

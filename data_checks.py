@@ -1,3 +1,13 @@
+'''
+Script to investigate the data set
+
+Among other things: 
+- Checks the validation and test set provided from https://www.kaggle.com/datasets/skooch/ddsm-mammography
+- Plots the mammograms
+- Test the class distrbituion
+'''
+
+
 import tensorflow as tf
 import matplotlib.pyplot as plt
 import os
@@ -25,21 +35,6 @@ print(np.bincount(test_labels))
 print("val_labels")
 print(np.unique(val_labels))
 print(np.bincount(val_labels))
-
-
-print("train_labels")
-print(np.unique(y_train))
-print(np.bincount(y_train))
-
-print("test_labels")
-print(np.unique(y_test))
-print(np.bincount(y_test))
-
-
-print("val_labels")
-print(np.unique(y_val))
-print(np.bincount(y_val))
-
 
 
 # plot images
@@ -102,7 +97,7 @@ else:
 #Plot some stuff 
 #Find plot with accuracy and *stuff* over time and implement it 
 
-'''
+
 # load data
 root_dir = os.path.abspath("")
 
@@ -125,6 +120,7 @@ for file in filenames:
 images = [i for image in images for i in image]
 labels = [l for label in labels for l in label]
 
+
 # define train and test
 X=np.array(images)
 y=np.array(labels)
@@ -140,34 +136,15 @@ x_val, x_test, y_val, y_test = train_test_split(x_test1, y_test1, test_size=0.5,
                                                 shuffle=True,stratify=y_test1)
 print(x_train.shape, x_test.shape, y_train.shape, y_test.shape)
 
+print("train_labels")
+print(np.unique(y_train))
+print(np.bincount(y_train))
+
+print("test_labels")
+print(np.unique(y_test))
+print(np.bincount(y_test))
 
 
-
-
-
-#(x_train_mnist, y_train_mnist), (x_test_mnist, y_test_mnist) = tf.keras.datasets.mnist.load_data()
-#print(x_train_mnist.shape, x_test_mnist.shape, y_train_mnist.shape, y_test_mnist.shape)
-
-# plot example image
-image_index = 7777
-print(y_train[image_index]) 
-#plt.imshow(x_train[image_index], cmap='Greys')
-#plt.show()
-
-
-# Reshaping the array to 4-dims so that it can work with the Keras API
-x_train = x_train.reshape(x_train.shape[0], x_train.shape[1], x_train.shape[2], 1) 
-x_test = x_test.reshape(x_test.shape[0], x_train.shape[1], x_train.shape[2], 1)
-input_shape = (x_train.shape[1], x_train.shape[2], x_train.shape[3])
-
-# Making sure that the values are float so that we can get decimal points after division
-x_train = x_train.astype('float32')
-x_test = x_test.astype('float32')
-
-# Normalizing the RGB codes by dividing it to the max RGB value.
-x_train /= 255
-x_test /= 255
-print('x_train shape:', x_train.shape)
-print('Number of images in x_train', x_train.shape[0])
-print('Number of images in x_test', x_test.shape[0])
-'''
+print("val_labels")
+print(np.unique(y_val))
+print(np.bincount(y_val))

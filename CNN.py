@@ -1,6 +1,17 @@
+'''
+Script to run the baseline models, CNN-L, CNN-M and CNN-S. 
+
+First, the data is prepared. 
+Then, we loop through the three models. 
+Lastly, the models are evaluated and relevant metrics and plots are saved in the output folder. 
+
+'''
+
 import tensorflow as tf
 import matplotlib.pyplot as plt
 from sklearn.metrics import classification_report, confusion_matrix
+from keras.callbacks import EarlyStopping, ModelCheckpoint
+from keras.models import load_model
 import os 
 from os.path import exists
 import numpy as np
@@ -47,7 +58,7 @@ X=np.array(images)
 y=np.array(labels)
 
 #divide data into train, test and val
-x_train, x_test1, y_train, y_test1 = train_test_split(X, y, test_size=0.3, random_state=3,
+x_train, x_test1, y_train, y_test1 = train_test_split(X, y, test_size=0.4, random_state=3,
                                                       shuffle=True,stratify=y)
 
 x_val, x_test, y_val, y_test = train_test_split(x_test1, y_test1, test_size=0.5, random_state=3,
@@ -80,13 +91,13 @@ print('Number of images in x_val', x_val.shape[0])
 
 print("starting model loop")
 #create models for hyperparameter comparison
-for model_name in ['cnn_large']: # 'cnn_small', 'cnn_medium', 
+for model_name in ['cnn_small', 'cnn_medium']: #'cnn_large']:  
   #Create print
   print(model_name, 'initializing')
 
   #define emissionstracker
   tracker = EmissionsTracker()
-
+  
   #define model
   if model_name == 'cnn_small':
     model = cnn(input_shape, conv_layers = [16], dense_layers = [100, 64])
@@ -95,14 +106,17 @@ for model_name in ['cnn_large']: # 'cnn_small', 'cnn_medium',
   elif model_name == 'cnn_large':
     model = cnn(input_shape, conv_layers = [16, 25, 36], dense_layers = [100, 64])
 
-  #create early stopping object 
-  #callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10)
+  #Create early stopping object
+  es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=50)
 
+  #Initialise check point for best model
+  mc = ModelCheckpoint(f'output/tles/{model_name}/best_model.h5', monitor='val_loss', mode='min', verbose=1, save_best_only=True)
+  
   #compile model
   model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics = ['accuracy'])
 
   #save model parameters 
-  with open(f'output/{model_name}/{model_name}_summary.txt', 'w') as f:
+  with open(f'output/tles/{model_name}/{model_name}_summary.txt', 'w') as f:
     with redirect_stdout(f):
         model.summary()
 
@@ -111,12 +125,12 @@ for model_name in ['cnn_large']: # 'cnn_small', 'cnn_medium',
   start_time = datetime.now()
 
   # Fit model
-  history = model.fit(x=x_train,y=y_train, epochs=200, validation_data=(x_val, y_val)) #, callbacks=[callback])
+  history = model.fit(x=x_train,y=y_train, epochs=200, validation_data=(x_val, y_val), callbacks=[es, mc],verbose=1) #, callbacks=[callback])
 
   #save environmental impact 
   emissions: float = tracker.stop()
   end_time = datetime.now()
-  co2_path = os.path.join(root_dir,'output', 'co2emissions.csv')
+  co2_path = os.path.join(root_dir,'output', 'tles','co2emissions.csv')
   no_epochs = len(history.history['val_loss'])
 
   if exists(co2_path): 
@@ -126,6 +140,12 @@ for model_name in ['cnn_large']: # 'cnn_small', 'cnn_medium',
     with open(co2_path, 'w') as fd:
       fd.write(f'Emissions for {model_name}: {emissions} kg,  Duration: {end_time - start_time}, No. of epochs run: {no_epochs};')
 
+  # load the saved model
+  model = load_model(f'output/tles/{model_name}/best_model.h5')
+  # evaluate the model
+  _, train_acc = model.evaluate(x_train, y_train, verbose=0)
+  _, test_acc = model.evaluate(x_test, y_test, verbose=0)
+  print('Train: %.3f, Test: %.3f' % (train_acc, test_acc))  
   # Evaluate model
   model.evaluate(x_test, y_test)
 
@@ -139,15 +159,15 @@ for model_name in ['cnn_large']: # 'cnn_small', 'cnn_medium',
 
   #save classification report
   clsf_report = pd.DataFrame(classification_report(y_val, y_pred_bool_val, output_dict=True)).transpose()
-  clsf_report.to_csv(f'output/{model_name}/{model_name}_clsf_val_report.csv', index= True)
+  clsf_report.to_csv(f'output/tles/{model_name}/{model_name}_clsf_val_report.csv', index= True)
 
   #save classification report
   clsf_report = pd.DataFrame(classification_report(y_test, y_pred_bool, output_dict=True)).transpose()
-  clsf_report.to_csv(f'output/{model_name}/{model_name}_clsf_report.csv', index= True)
+  clsf_report.to_csv(f'output/tles/{model_name}/{model_name}_clsf_report.csv', index= True)
 
   # save history
   hist_df = pd.DataFrame(history.history)
-  hist_df.to_csv(f'output/{model_name}/{model_name}_history.csv', index= True)
+  hist_df.to_csv(f'output/tles/{model_name}/{model_name}_history.csv', index= True)
   
   # Visualize history
   # Plot history: Loss  
@@ -157,7 +177,7 @@ for model_name in ['cnn_large']: # 'cnn_small', 'cnn_medium',
   plt.ylabel('Loss value')
   plt.xlabel('No. epoch')
   plt.legend(loc="upper right")
-  plt.savefig(f'output/{model_name}/{model_name}_loss.jpg')
+  plt.savefig(f'output/tles/{model_name}/{model_name}_loss.jpg')
   plt.clf()
 
   # Plot history: Accuracy
@@ -167,7 +187,7 @@ for model_name in ['cnn_large']: # 'cnn_small', 'cnn_medium',
   plt.ylabel('Accuracy value (%)')
   plt.xlabel('No. epoch')
   plt.legend(loc="upper left")
-  plt.savefig(f'output/{model_name}/{model_name}_accuracy.jpg')
+  plt.savefig(f'output/tles/{model_name}/{model_name}_accuracy.jpg')
   plt.clf()
 
   #create confusion matrix
@@ -180,13 +200,7 @@ for model_name in ['cnn_large']: # 'cnn_small', 'cnn_medium',
   ax.xaxis.set_ticklabels(['negative', 'benign calcification', 'benign mass', 'malignant calcification', 'malignant mass'], rotation = 90); 
   ax.yaxis.set_ticklabels(['negative', 'benign calcification', 'benign mass', 'malignant calcification', 'malignant mass'], rotation = 0);
   figure = svm.get_figure()
-  figure.savefig(f'output/{model_name}/{model_name}_confusion_matrix.png', bbox_inches = 'tight') 
+  figure.savefig(f'output/tles/{model_name}/{model_name}_confusion_matrix.png', bbox_inches = 'tight') 
 
   #plot model architecture
   #plot_model(model, f'output/{model_name}/{model_name}_architecture.png', show_shapes=True)
-
-  # Predict using fitted model 
-  # image_index = 2
-  # plt.imshow(x_test[image_index].reshape(x_train.shape[1], x_train.shape[2]),cmap='Greys')
-  # pred = model.predict(x_test[image_index].reshape(1, x_train.shape[1], x_train.shape[2], 1))
-  # print(pred.argmax())
